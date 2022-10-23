@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="MemberPortal" default="dist">
+    <target name="clean">
+        <delete>
+            <fileset dir="dist">
+                <include name="**" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="dist" depends="clean">
+        <zip destfile="dist/memberportal.zip">
+            <fileset dir="./src">
+                <include name="**" />
+            </fileset>
+        </zip>
+    </target>
+</project>
