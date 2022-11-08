@@ -52,8 +52,10 @@
 			<!-- Admin Main File Copy Section -->
 			<filename>index.html</filename>
 			<filename>memberportal.php</filename>
+			<filename>controller.php</filename>
 			<!-- SQL files section -->
 			<folder>sql</folder>
+			<folder>views</folder>
 		</files>
 		<languages folder="admin/language">
 			<language tag="en-GB">en-GB/en-GB.com_memberportal.sys.ini</language>
