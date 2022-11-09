@@ -1,2 +1,5 @@
 DROP TABLE IF EXISTS `#__memberportal_members`;
+DROP TABLE IF EXISTS `#__memberportal_member_attrs`;
+DROP TABLE IF EXISTS `#__memberportal_cell_groups`;
+DROP TABLE IF EXISTS `#__memberportal_attendance_ceremony`;
 DROP TABLE IF EXISTS `#__memberportal_uploaded_files`;
