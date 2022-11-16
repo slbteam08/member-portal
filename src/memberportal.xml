@@ -41,6 +41,12 @@
 		<folder>views</folder>
 	</files>
 
+	<media folder="media" destination="com_memberportal">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+	</media>
+
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu link='index.php?option=com_memberportal'>Member Portal</menu>

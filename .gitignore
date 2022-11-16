@@ -48,4 +48,8 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Composer packages
+vendor/
+
+# Custom folders
 tmp/
