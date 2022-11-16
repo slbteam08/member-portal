@@ -29,22 +29,19 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		// Set up media paths
 		$input = Factory::getApplication()->input;
 		$component_name = $input->get('option');
-		$media_base = Uri::base() . "media/" . $component_name . "/";
-		$images_path = $media_base . "images/";
-		$js_path = $media_base . "js/";
-		$css_path = $media_base . "css/";
-
-		// Avatar path
-		$this->avatar_url = $images_path . "avatar.png";
+		$media_base = Uri::base() . "media/" . $component_name;
+		$this->images_path = $media_base . "/images";
+		$this->js_path = $media_base . "/js";
+		$this->css_path = $media_base . "/css";
 
 		// Add JS and CSS to document
 		$document = Factory::getDocument();
-		$document->addScript($js_path . "bootstrap.bundle.min.js");
+		$document->addScript($this->js_path . "/bootstrap.bundle.min.js");
 		$document->addScript("https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js");
 		$document->addScript("https://cdn.jsdelivr.net/npm/apexcharts");
 		$document->addScript("https://cdn.jsdelivr.net/npm/vue-apexcharts");
-		$document->addStyleSheet($css_path . "bootstrap.min.css");
-		$document->addStyleSheet($css_path . "styles.css");
+		$document->addStyleSheet($this->css_path . "/bootstrap.min.css");
+		$document->addStyleSheet($this->css_path . "/styles.css");
 
 		// Display the view
 		parent::display($tpl);
