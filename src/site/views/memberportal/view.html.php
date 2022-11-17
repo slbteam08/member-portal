@@ -13,6 +13,34 @@ use Joomla\CMS\Uri\Uri;
  */
 class MemberPortalViewMemberPortal extends JViewLegacy
 {
+	// protected function getMemberInfo($member_code)
+	// {
+	// 	// Initialize variables.
+	// 	$db    = JFactory::getDbo();
+	// 	$query = $db->getQuery(true);
+    //     $subQuery = $db-getQuery(true);
+
+    //     // Latest attribute rows per member
+    //     $subQuery->select(["m.name_chi", "a.*", "RANK() over (PARTITION BY member_code ORDER BY start_date desc) as attr_rank"])
+    //              ->from($db->quoteName('#__memberportal_members', 'm'))
+    //              ->join(
+    //                 'INNER', 
+    //                 $db->quoteName('#__memberportal_member_attrs', 'a') 
+    //                 . ' ON ' . $db->quoteName('a.member_code') . ' = ' . $db->quoteName('m.member_code')
+    //              );
+
+	// 	// Create the base select statement.
+	// 	$query->select('*')
+    //            ->from("(" . $subQuery . ") AS b")
+    //            ->where("attr_rank = 1")
+    //            ->where("member_code = " . $member_code);
+
+    //     $db->setQuery($query);
+    //     $row = $db->loadAssocList('member_code');
+
+	// 	return $row;
+	// }
+
 	/**
 	 * Display the Member Portal view
 	 *
@@ -22,12 +50,24 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 	 */
 	function display($tpl = null)
 	{
-		// Get Current User
-		$user = Factory::getUser();
-		// print_r($user);
+		$input = Factory::getApplication()->input;
+
+		// Determine member code
+		$member_code = $input->get("member_code"); // Secret override
+		if (is_null($member_code)) {
+			$user = Factory::getUser();
+			$member_code = $user->username;
+			// print_r($user);
+		}
+		// var_dump($member_code);
+
+		// Get Member Info
+		//$info = $this->get("Msg");
+		$model = $this->getModel();
+		$this->info = $model->getMemberInfo($member_code);
+		var_dump($this->info);
 
 		// Set up media paths
-		$input = Factory::getApplication()->input;
 		$component_name = $input->get('option');
 		$media_base = Uri::base() . "media/" . $component_name;
 		$this->images_path = $media_base . "/images";

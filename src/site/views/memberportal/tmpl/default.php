@@ -250,7 +250,10 @@ function generateData(count, yrange) {
     <!-- header -->
     <div class="row user-info">
       <div class="col-sm-1 col-4"><img src="<?php echo $this->images_path; ?>/avatar.png" /> </div>
-      <div class="col-sm-6 col-8 user"><span>歡迎 : 馬錦鋒 </span><br> 組員身份 : 區長 <br>會友分類 : 責任會友</div>
+      <div class="col-sm-6 col-8 user">
+        <span>歡迎 : <?php echo $this->info->name_chi; ?> </span>
+        <br> 組員身份 : <?php echo $this->info->cell_role; ?>
+        <br>會友分類 : <?php echo $this->info->member_category; ?></div>
       <div class="col-sm-5 col-12 update-info">以下資料最後更新日期為 : 2022年 1 月10 日</div>
     </div>
 

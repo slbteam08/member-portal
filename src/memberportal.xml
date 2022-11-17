@@ -39,6 +39,7 @@
 		<filename>memberportal.php</filename>
 		<filename>controller.php</filename>
 		<folder>views</folder>
+		<folder>models</folder>
 	</files>
 
 	<media folder="media" destination="com_memberportal">
