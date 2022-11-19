@@ -13,34 +13,6 @@ use Joomla\CMS\Uri\Uri;
  */
 class MemberPortalViewMemberPortal extends JViewLegacy
 {
-	// protected function getMemberInfo($member_code)
-	// {
-	// 	// Initialize variables.
-	// 	$db    = JFactory::getDbo();
-	// 	$query = $db->getQuery(true);
-    //     $subQuery = $db-getQuery(true);
-
-    //     // Latest attribute rows per member
-    //     $subQuery->select(["m.name_chi", "a.*", "RANK() over (PARTITION BY member_code ORDER BY start_date desc) as attr_rank"])
-    //              ->from($db->quoteName('#__memberportal_members', 'm'))
-    //              ->join(
-    //                 'INNER', 
-    //                 $db->quoteName('#__memberportal_member_attrs', 'a') 
-    //                 . ' ON ' . $db->quoteName('a.member_code') . ' = ' . $db->quoteName('m.member_code')
-    //              );
-
-	// 	// Create the base select statement.
-	// 	$query->select('*')
-    //            ->from("(" . $subQuery . ") AS b")
-    //            ->where("attr_rank = 1")
-    //            ->where("member_code = " . $member_code);
-
-    //     $db->setQuery($query);
-    //     $row = $db->loadAssocList('member_code');
-
-	// 	return $row;
-	// }
-
 	/**
 	 * Display the Member Portal view
 	 *
@@ -59,13 +31,19 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			$member_code = $user->username;
 			// print_r($user);
 		}
-		// var_dump($member_code);
 
-		// Get Member Info
-		//$info = $this->get("Msg");
+		// Get member data
 		$model = $this->getModel();
+		$this->num_weeks = $model->getNumWeeks(2021);
 		$this->info = $model->getMemberInfo($member_code);
-		var_dump($this->info);
+		$this->attd_ceremony_dates = $model->getAttendanceCeremony($member_code);
+
+		// Evaluate attendance arrays
+		$this->attd_ceremony_series = array_fill(0, $this->num_weeks, false);
+		foreach($this->attd_ceremony_dates as $date) {
+			$this->attd_ceremony_series[$date->week_of_year] = true;
+		}
+		$this->attd_ceremony_cnt = count($this->attd_ceremony_dates);
 
 		// Set up media paths
 		$component_name = $input->get('option');
