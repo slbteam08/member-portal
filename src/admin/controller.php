@@ -13,6 +13,14 @@ class MemberPortalController extends JControllerLegacy
 	 */
 	protected $default_view = 'admin';
 
+	private function isDate($date) {
+		if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public function uploadExcel() {
 		$app = JFactory::getApplication(); 
 		$input = $app->input;
@@ -161,5 +169,152 @@ class MemberPortalController extends JControllerLegacy
 		$db->execute();
 
 		print_r("<p>Loaded " . count($attendance_ceremony_values) . " ceremony attendance rows");
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Cell Attendance
+		///////////////////////////////////////////////////////////////////////
+
+		$sheet = $spreadsheet->getSheetByName("出席記錄-小組");
+		$rows = $sheet->toArray();
+
+		// Truncate member attributes table
+		$db->truncateTable('#__memberportal_attendance_cell');
+
+		// Insert cell attendance
+		$attendance_cell_values = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) continue;  // Skip header
+			
+			$date = $db->quote($row[0]);
+			if (empty($row[1])) {
+				$member_code = "NULL";
+			} else {
+				$member_code = $db->quote($row[1]);
+			}
+			if (empty($row[2])) {
+				$visitor_name = "NULL";
+			} else {
+				$visitor_name = $db->quote($row[2]);
+			}
+			$cell_group_name = $db->quote($row[3]);
+			$event_type = $db->quote($row[4]);
+
+			$attendance_cell_values[] = implode(', ', [
+				$date, $member_code, $visitor_name, $cell_group_name, $event_type
+			]);
+		}
+
+		$query = $db->getQuery(true);
+		$columns = array('date', 'member_code', 'visitor_name', 'cell_group_name', 'event_type');
+		$query
+			->insert($db->quoteName('#__memberportal_attendance_cell'))
+    		->columns($db->quoteName($columns))
+    		->values($attendance_cell_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows");
+
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Offerings
+		///////////////////////////////////////////////////////////////////////
+
+		$sheet = $spreadsheet->getSheetByName("奉獻記錄");
+		$rows = $sheet->toArray();
+
+		// Truncate member attributes table
+		$db->truncateTable('#__memberportal_offerings');
+
+		// Insert offerings
+		$offering_members = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) continue;  // Skip header
+			
+			$date_arr = date_parse_from_format("j/n/Y", $row[0]);
+			if ($date_arr["error_count"] > 0) {
+				// Parse with another format
+				$date_arr = date_parse_from_format("M-y", $row[0]);
+				$date_arr["day"] = 1;
+			}
+			$date = implode("-", [$date_arr["year"], $date_arr["month"], $date_arr["day"]]);
+			$member_code = $row[1];
+			if (empty($row[2])) {
+				$num_offerings = 1; // Default count 1 time
+			} else {
+				$num_offerings = $row[2];
+			}
+
+			// Put into dict for deduplication
+			if (!array_key_exists($member_code, $offering_members)) {
+				$offering_members[$member_code] = [];
+			}
+			$member_dates = &$offering_members[$member_code];
+			if (in_array($date, $member_dates)) {
+				$member_dates[$date] = max($member_dates[$date], $num_offerings);
+			} else {
+				$member_dates[$date] = $num_offerings;
+			}
+		}
+
+		$offering_values = [];
+		foreach($offering_members as $member_code => $member_dates) {
+			foreach($member_dates as $date => $num_offerings) {
+				$offering_values[] = implode(', ', [
+					$db->quote($date), $db->quote($member_code), $num_offerings
+				]);
+			}
+		}
+		$offering_values = array_unique($offering_values);
+
+		$query = $db->getQuery(true);
+		$columns = array('date', 'member_code', 'num_offerings');
+		$query
+			->insert($db->quoteName('#__memberportal_offerings'))
+    		->columns($db->quoteName($columns))
+    		->values($offering_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($offering_values) . " offering rows");
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Cell Group Schedule
+		///////////////////////////////////////////////////////////////////////
+		
+		$sheet = $spreadsheet->getSheetByName("小組日程");
+		$rows = $sheet->toArray();
+
+		// Truncate cell groups table
+		$db->truncateTable('#__memberportal_cell_schedule');
+
+		$schedule_values = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) continue;  // Skip header
+
+			$year = $row[0];
+			$week = $row[1];
+			if ($this->isDate($row[2])) {
+				$week_start = $db->quote($row[2]);
+			} else {
+				$week_start = "NULL";
+			}
+
+			$schedule_values[] = $year . ", " . $week . ", " . $week_start;
+		}
+
+		$query = $db->getQuery(true);
+		$columns = array('year', 'week', 'week_start');
+		$query
+			->insert($db->quoteName('#__memberportal_cell_schedule'))
+    		->columns($db->quoteName($columns))
+    		->values($schedule_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates");
 	}
 }
