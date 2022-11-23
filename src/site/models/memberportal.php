@@ -58,4 +58,43 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         return $rows;
     }
+
+    public function getCellSchedule($year)
+    {
+        // Initialize variables.
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'year', 'week', 'week_start'
+            ])
+            ->from($db->quoteName('#__memberportal_cell_schedule'))
+            ->where("year = " . $year);
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
+    public function getAttendanceCell($member_code)
+    {
+        // Initialize variables.
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'date', 
+                "YEARWEEK(date + INTERVAL 1 DAY) as year_week", 
+                "WEEKOFYEAR(date + INTERVAL 1 DAY) as week_of_year",
+                "event_type",
+            ])
+            ->from($db->quoteName('#__memberportal_attendance_cell'))
+            ->where("member_code = " . $member_code);
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
 }

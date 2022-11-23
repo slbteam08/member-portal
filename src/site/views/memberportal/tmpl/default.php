@@ -4,6 +4,10 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <style>
+  p {
+    margin: 0 0 10px !important;
+  }
+
   .user-content {
     width: 100%;
     margin: 0 auto;
@@ -163,9 +167,7 @@ defined('_JEXEC') or die('Restricted access');
     text-align: left;
   }
 
-  #app2 .apexcharts-legend-series[rel="1"],
-  #app2 .apexcharts-legend-series[rel="3"],
-  #app2 .apexcharts-legend-series[rel="5"] {
+  #heatmap-week .apexcharts-legend-series[rel="1"] {
     display: none !important;
   }
 
@@ -177,8 +179,13 @@ defined('_JEXEC') or die('Restricted access');
     left: -5px;
   }
 
-
-
+  #chart3 .apexcharts-canvas {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    width: 100% !important;
+    position: relative;
+    left: -5px;
+  }
 
   /* Smartphones (portrait and landscape) ----------- */
   @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
@@ -250,7 +257,7 @@ defined('_JEXEC') or die('Restricted access');
     var i = 0;
     var series = [];
     while (i < count) {
-      var x = (i + 1).toString();
+      var x = (i + 1).toString() + "月";
       var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
 
       series.push({
@@ -266,8 +273,18 @@ defined('_JEXEC') or die('Restricted access');
     var series = [
       <?php
       foreach ($this->attd_ceremony_series as $key => $value) {
-        $attendance = $value ? 6 : 5;
-        echo "{x: " . ($key + 1) . ", y: " . $attendance . "},";
+        echo "{x: '" . $key . "', y: " . $value . "},";
+      }
+      ?>
+    ];
+    return series;
+  }
+
+  function getSeriesCell() {
+    var series = [
+      <?php
+      foreach ($this->attd_cell_series as $key => $value) {
+        echo "{x: '" . $key . "', y: " . $value . "},";
       }
       ?>
     ];
@@ -293,7 +310,7 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-6 col-sm-3 info-box">
       <div class="col-12 info-icon">
         <img src="<?php echo $this->images_path; ?>/icon_cell.jpg" /><br>
-        <div class="info-text-num">48</div>
+        <div class="info-text-num"><?php echo $this->attd_cell_cnt; ?></div>
         <div class="info-text">小組出席</div>
       </div>
     </div>
@@ -326,9 +343,15 @@ defined('_JEXEC') or die('Restricted access');
 
     <div class="col-12 info-box">
       <div class="col-12 info-heatMap">
-        <div id="heatmap">
+        <div id="heatmap-week">
           <div id="chart2">
-            <apexchart type="heatmap" height="200" width="100%" :options="chartOptions" :series="series"></apexchart>
+            <apexchart type="heatmap" height="150" width="100%" :options="chartOptions" :series="series"></apexchart>
+          </div>
+        </div>
+
+        <div id="heatmap-month">
+          <div id="chart3">
+            <apexchart type="heatmap" height="100" width="100%" :options="chartOptions" :series="series"></apexchart>
           </div>
         </div>
       </div>
@@ -622,44 +645,24 @@ defined('_JEXEC') or die('Restricted access');
 
   })
 
-  // heatmap
+  // heatmap (weekly)
   new Vue({
-    el: '#heatmap',
+    el: '#heatmap-week',
     components: {
       apexchart: VueApexCharts,
     },
 
     data: {
 
-      series: [{
-          name: ' ',
-          data: generateData(52, {
-            min: 8,
-            max: 12
-          })
-        },
+      series: [
         {
           name: '崇拜',
           data: getSeriesCeremony(),
-          // data: generateData(52, {
-          //   min: 5,
-          //   max: 6
-          // })
         },
         {
-          name: '',
-          data: generateData(52, {
-            min: 3,
-            max: 4
-          })
+          name: '小組',
+          data: getSeriesCell(),
         },
-        {
-          name: ' ',
-          data: generateData(52, {
-            min: 1,
-            max: 2
-          })
-        }
       ],
 
       chartOptions: {
@@ -679,7 +682,7 @@ defined('_JEXEC') or die('Restricted access');
           }
         }],
         chart: {
-          height: 200,
+          height: 100,
           type: 'heatmap',
           toolbar: {
             show: false,
@@ -696,32 +699,9 @@ defined('_JEXEC') or die('Restricted access');
             useFillColorAsStroke: false,
 
             colorScale: {
-              ranges: [{
+              ranges: [
+                {
                   from: 0,
-                  to: 1,
-                  name: ' ',
-                  color: '#ddd3e7'
-                },
-                {
-                  from: 2,
-                  to: 2,
-                  name: '完成課程',
-                  color: '#792D7C'
-                },
-                {
-                  from: 3,
-                  to: 3,
-                  name: ' ',
-                  color: '#e3e7d3'
-                },
-                {
-                  from: 4,
-                  to: 4,
-                  name: '奉獻',
-                  color: '#9DA818'
-                },
-                {
-                  from: 5,
                   to: 5,
                   name: ' ',
                   color: '#e1eeff'
@@ -734,16 +714,16 @@ defined('_JEXEC') or die('Restricted access');
                 },
                 {
                   from: 8,
-                  to: 8,
+                  to: 9,
                   name: '分區出席',
                   color: '#C76CD8'
                 },
-                {
-                  from: 9,
-                  to: 9,
-                  name: '分區缺席',
-                  color: '#e5d9e7'
-                },
+                // {
+                //   from: 9,
+                //   to: 9,
+                //   name: '分區缺席',
+                //   color: '#e5d9e7'
+                // },
                 {
                   from: 10,
                   to: 10,
@@ -761,6 +741,93 @@ defined('_JEXEC') or die('Restricted access');
                   to: 12,
                   name: '沒有小組',
                   color: '#4e4e4e'
+                }
+              ]
+            }
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          width: 1
+        },
+        title: {
+          text: ' '
+        },
+      },
+
+
+    },
+
+  })
+
+  // heatmap (monthly)
+  new Vue({
+    el: '#heatmap-month',
+    components: {
+      apexchart: VueApexCharts,
+    },
+
+    data: {
+
+      series: [
+        {
+          name: '奉獻',
+          // data: getSeriesCeremony(),
+          data: generateData(12, {
+            min: 3,
+            max: 4,
+          })
+        },
+      ],
+
+      chartOptions: {
+        legend: {
+          position: 'bottom',
+        },
+        responsive: [{
+          breakpoint: 600,
+          options: {
+            chart: {
+              width: 1000,
+            },
+            legend: {
+              position: "bottom",
+              horizontalAlign: "left"
+            }
+          }
+        }],
+        chart: {
+          height: 50,
+          type: 'heatmap',
+          toolbar: {
+            show: false,
+          },
+        },
+        tooltip: {
+          enabled: false
+        },
+
+        plotOptions: {
+          heatmap: {
+            shadeIntensity: 0,
+            radius: 0,
+            useFillColorAsStroke: false,
+
+            colorScale: {
+              ranges: [
+                {
+                  from: 0,
+                  to: 3,
+                  name: ' ',
+                  color: '#e3e7d3'
+                },
+                {
+                  from: 4,
+                  to: 4,
+                  name: '奉獻',
+                  color: '#9DA818'
                 }
               ]
             }
