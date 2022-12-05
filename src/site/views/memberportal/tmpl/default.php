@@ -563,8 +563,11 @@ defined('_JEXEC') or die('Restricted access');
       apexchart: VueApexCharts,
     },
     data: {
-
-      series: [92, 91, 100],
+      series: [
+        <?php echo $this->attd_ceremony_pcnt; ?>, 
+        <?php echo $this->attd_cell_pcnt; ?>, 
+        100
+      ],
       chartOptions: {
         chart: {
           height: 350,

@@ -35,11 +35,19 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		// Get member data
 		$year = 2021;
 		$model = $this->getModel();
+		
 		$this->num_weeks = $model->getNumWeeks($year);
 		$this->cell_schedule = $model->getCellSchedule($year);
 		$this->info = $model->getMemberInfo($member_code);
 		$this->attd_ceremony_dates = $model->getAttendanceCeremony($member_code);
 		$this->attd_cell_dates = $model->getAttendanceCell($member_code);
+		if ($year == date("Y")) {
+			$this->current_week = date("W");
+			$this->current_month = date("n");
+		} else {
+			$this->current_week = $this->num_weeks;
+			$this->current_month = 12;
+		}
 
 		// Attendance code
 		$ceremony_present = 6;
@@ -58,10 +66,14 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->attd_ceremony_cnt = count($this->attd_ceremony_dates);
 
 		$this->attd_cell_series = [];
+		$this->no_cell_weeks = 0;
 		foreach($this->cell_schedule as $cell_date) {
 			$week = $cell_date->week;
 			if (is_null($cell_date->week_start)) {
 				$this->attd_cell_series[$week] = $no_cell;
+				if ($week <= $this->current_week) {
+					$this->no_cell_weeks += 1;
+				}
 			} else {
 				$this->attd_cell_series[$week] = $cell_absent;
 			}
@@ -75,6 +87,10 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			$this->attd_cell_series[$date->week_of_year] = $present;
 		}
 		$this->attd_cell_cnt = count($this->attd_cell_dates);
+
+		// Attendance percentage
+		$this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->current_week * 100);
+		$this->attd_cell_pcnt = (int)round($this->attd_cell_cnt / ($this->current_week - $this->no_cell_weeks) * 100);
 
 		// Set up media paths
 		$component_name = $input->get('option');
