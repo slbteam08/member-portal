@@ -290,6 +290,17 @@ defined('_JEXEC') or die('Restricted access');
     ];
     return series;
   }
+
+  function getSeriesOffering() {
+    var series = [
+      <?php
+      foreach ($this->offering_series as $key => $value) {
+        echo "{x: '" . $key . "', y: " . $value . "},";
+      }
+      ?>
+    ];
+    return series;
+  }
 </script>
 
 <div class="container-fluid user-content">
@@ -325,7 +336,7 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-6 col-sm-3 info-box">
       <div class="col-12 info-icon">
         <img src="<?php echo $this->images_path; ?>/icon_offer.jpg" /><br>
-        <div class="info-text-num">12</div>
+        <div class="info-text-num"><?php echo $this->offering_cnt; ?></div>
         <div class="info-text">奉獻</div>
       </div>
     </div>
@@ -566,7 +577,7 @@ defined('_JEXEC') or die('Restricted access');
       series: [
         <?php echo $this->attd_ceremony_pcnt; ?>, 
         <?php echo $this->attd_cell_pcnt; ?>, 
-        100
+        <?php echo $this->offering_pcnt; ?>,
       ],
       chartOptions: {
         chart: {
@@ -777,11 +788,11 @@ defined('_JEXEC') or die('Restricted access');
       series: [
         {
           name: '奉獻',
-          // data: getSeriesCeremony(),
-          data: generateData(12, {
-            min: 3,
-            max: 4,
-          })
+          data: getSeriesOffering(),
+          // data: generateData(12, {
+          //   min: 3,
+          //   max: 4,
+          // })
         },
       ],
 

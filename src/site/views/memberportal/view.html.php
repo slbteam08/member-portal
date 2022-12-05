@@ -39,8 +39,9 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->num_weeks = $model->getNumWeeks($year);
 		$this->cell_schedule = $model->getCellSchedule($year);
 		$this->info = $model->getMemberInfo($member_code);
-		$this->attd_ceremony_dates = $model->getAttendanceCeremony($member_code);
-		$this->attd_cell_dates = $model->getAttendanceCell($member_code);
+		$this->attd_ceremony_dates = $model->getAttendanceCeremony($member_code, $year);
+		$this->attd_cell_dates = $model->getAttendanceCell($member_code, $year);
+		$this->offering_months = $model->getOfferingMonths($member_code, $year);
 		if ($year == date("Y")) {
 			$this->current_week = date("W");
 			$this->current_month = date("n");
@@ -57,13 +58,15 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$cell_present = 10;
 		$cell_absent = 11;
 		$no_cell = 12;
+		$no_offering = 3;
+		$did_offering = 4;
 
 		// Evaluate attendance arrays
 		$this->attd_ceremony_series = array_fill(1, $this->num_weeks, $ceremony_absent);
 		foreach($this->attd_ceremony_dates as $date) {
 			$this->attd_ceremony_series[$date->week_of_year] = $ceremony_present;
 		}
-		$this->attd_ceremony_cnt = count($this->attd_ceremony_dates);
+		$this->attd_ceremony_cnt = count($this->attd_ceremony_dates);  // TODO: Count distinct weeks
 
 		$this->attd_cell_series = [];
 		$this->no_cell_weeks = 0;
@@ -87,6 +90,14 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			$this->attd_cell_series[$date->week_of_year] = $present;
 		}
 		$this->attd_cell_cnt = count($this->attd_cell_dates);
+
+		// Evaluate offering array
+		$this->offering_series = array_fill(1, 12, $no_offering);
+		foreach($this->offering_months as $month) {
+			$this->offering_series[$month->month] = $did_offering;
+		}
+		$this->offering_cnt = count($this->offering_months);
+		$this->offering_pcnt = (int)round($this->offering_cnt / $this->current_month * 100);
 
 		// Attendance percentage
 		$this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->current_week * 100);
