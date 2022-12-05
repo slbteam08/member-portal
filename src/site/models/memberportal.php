@@ -114,4 +114,40 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         return $rows;
     }
+
+    public function getServingPosts($member_code)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'DISTINCT post'
+            ])
+            ->from($db->quoteName('#__memberportal_serving_posts'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("end_date = '0000-00-00'");
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
+    public function getCompletedCourses($member_code)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'DISTINCT course'
+            ])
+            ->from($db->quoteName('#__memberportal_courses'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("status = '已完成'");
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
 }

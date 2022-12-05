@@ -49,6 +49,8 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			$this->current_week = $this->num_weeks;
 			$this->current_month = 12;
 		}
+		$this->serving_posts = $model->getServingPosts($member_code);
+		$this->completed_courses = $model->getCompletedCourses($member_code);
 
 		// Attendance code
 		$ceremony_present = 6;
@@ -102,6 +104,39 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		// Attendance percentage
 		$this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->current_week * 100);
 		$this->attd_cell_pcnt = (int)round($this->attd_cell_cnt / ($this->current_week - $this->no_cell_weeks) * 100);
+
+		// Serving posts data (Name => JPG prefix)
+		$this->post_mapping = [
+			"招待員" => "usher",
+			"詩班" => "singer",
+			"敬拜隊" => "band",
+			"音控" => "sound",
+			"字幕員" => "ppt",
+			"攝影員" => "camera",
+			"區長" => "zone",
+			"組長" => "leader",
+			"核心" => "core",
+			"KidsGame<br>義工" => "kidsgame",
+			"迦勒牧區<br>義工" => "elderly",
+			"兒牧導師<br>(小學級)" => "child",
+			"兒牧導師<br>(幼稚級)" => "kinder",
+			"兒牧行政<br>(小學級)" => "primary",
+			"少牧導師" => "youth",
+			"司庫<br>(數奉獻)" => "treasurer",
+			"執事會成員" => "deacon",
+			"常委會成員" => "committee",
+		];
+		$this->post_data = [];
+		foreach($this->post_mapping as $post => $prefix) {
+			$this->post_data[$post] = $prefix . ".jpg";
+		}
+		foreach($this->serving_posts as $post_obj) {
+			$post = $post_obj->post;
+			$this->post_data[$post] = $this->post_mapping[$post] . "_on.jpg";
+		}
+
+		// Courses
+		$this->completed_course_cnt = count($this->completed_courses);
 
 		// Set up media paths
 		$component_name = $input->get('option');

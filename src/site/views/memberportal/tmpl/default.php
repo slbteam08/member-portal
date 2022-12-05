@@ -343,7 +343,7 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-6 col-sm-3 info-box">
       <div class="col-12 info-icon">
         <img src="<?php echo $this->images_path; ?>/icon_bible.jpg" /><br>
-        <div class="info-text-num">2</div>
+        <div class="info-text-num"><?php echo $this->completed_course_cnt; ?></div>
         <div class="info-text">課程</div>
       </div>
     </div>
@@ -375,83 +375,16 @@ defined('_JEXEC') or die('Restricted access');
 
     <div class="col-12 col-sm-7 info-box">
       <div class="col-12 row info-post">
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/usher.jpg" />
-          <p>招待員</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/singer.jpg" /> <br>
-          <p>詩班</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/band_on.jpg" /> <br>
-          <p>敬拜隊</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/sound_on.jpg" /> <br>
-          <p>音控</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/ppt.jpg" />
-          <p>字幕員</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/camera.jpg" /> <br>
-          <p>攝影員</p>
-        </div>
-
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/zone_on.jpg" /> <br>
-          <p>區長</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/leader.jpg" /> <br>
-          <p>組長</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/core.jpg" />
-          <p>核心</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/kidsgame.jpg" /> <br>
-          <p>KidsGame<br>義工</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/elderly.jpg" /> <br>
-          <p>迦勒牧區<br>義工</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/child.jpg" /> <br>
-          <p>兒牧導師<br>(小學級)</p>
-        </div>
-
-
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/kinder.jpg" /> <br>
-          <p>兒牧導師<br>(幼稚級)</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/primary.jpg" /> <br>
-          <p>兒牧行政<br>(小學級)</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/youth.jpg" />
-          <p>少牧導師</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/treasurer.jpg" /> <br>
-          <p>司庫<br>(數奉獻)</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/deacon.jpg" /> <br>
-          <p>執事會成員</p>
-        </div>
-        <div class="col-4 col-sm-2">
-          <img src="<?php echo $this->images_path; ?>/committee.jpg" /> <br>
-          <p>常委會成員</p>
-        </div>
-
-
+        <?php
+          foreach($this->post_data as $post => $jpg) {
+        ?>
+          <div class="col-4 col-sm-2">
+            <img src="<?php echo $this->images_path . "/" . $jpg; ?>" />
+            <p><?php echo $post; ?></p>
+          </div>
+        <?php
+          }
+        ?>
       </div>
     </div>
 
