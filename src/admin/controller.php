@@ -316,5 +316,89 @@ class MemberPortalController extends JControllerLegacy
 		$db->execute();
 
 		print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates");
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Serving Posts
+		///////////////////////////////////////////////////////////////////////
+
+		$sheet = $spreadsheet->getSheetByName("組員事奉崗位");
+		$rows = $sheet->toArray();
+
+		// Truncate cell groups table
+		$db->truncateTable('#__memberportal_serving_posts');
+
+		$post_values = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) continue;  // Skip header
+
+			$member_code = $row[0];
+			$name = $row[1];
+			$post = $row[2];
+			$start = $row[3];
+			$end = $row[4];
+
+			$post_values[] = implode(', ', [
+				$db->quote($member_code),
+				$db->quote($name),
+				$db->quote($post),
+				$db->quote($start),
+				$db->quote($end)
+			]);
+		}
+
+		$query = $db->getQuery(true);
+		$columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
+		$query
+			->insert($db->quoteName('#__memberportal_serving_posts'))
+    		->columns($db->quoteName($columns))
+    		->values($post_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($post_values) . " serving post rows");
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Courses
+		///////////////////////////////////////////////////////////////////////
+
+		$sheet = $spreadsheet->getSheetByName("課程記錄");
+		$rows = $sheet->toArray();
+
+		// Truncate cell groups table
+		$db->truncateTable('#__memberportal_courses');
+
+		$course_values = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) continue;  // Skip header
+
+			$member_code = $row[0];
+			$name = $row[1];
+			$course = $row[2];
+			$start = $row[3];
+			$end = $row[4];
+			$status = $row[5];
+
+			$course_values[] = implode(', ', [
+				$db->quote($member_code),
+				$db->quote($name),
+				$db->quote($course),
+				$db->quote($start),
+				$db->quote($end),
+				$db->quote($status)
+			]);
+		}
+
+		$query = $db->getQuery(true);
+		$columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
+		$query
+			->insert($db->quoteName('#__memberportal_courses'))
+    		->columns($db->quoteName($columns))
+    		->values($course_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($course_values) . " course rows");
 	}
 }

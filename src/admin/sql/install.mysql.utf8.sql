@@ -101,6 +101,39 @@ DEFAULT COLLATE=utf8mb4_unicode_ci
 ;
 
 
+DROP TABLE IF EXISTS `#__memberportal_serving_posts`;
+
+CREATE TABLE `#__memberportal_serving_posts` (
+	`member_code` VARCHAR(20) NOT NULL,
+	`name` VARCHAR(10) NOT NULL,
+	`post` VARCHAR(20) NOT NULL,
+	`start_date` DATE,
+	`end_date` DATE, 
+	PRIMARY KEY (`member_code`, `post`, `start_date`)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+DEFAULT COLLATE=utf8mb4_unicode_ci
+;
+
+
+DROP TABLE IF EXISTS `#__memberportal_courses`;
+
+CREATE TABLE `#__memberportal_courses` (
+	`member_code` VARCHAR(20) NOT NULL,
+	`name` VARCHAR(10) NOT NULL,
+	`course` VARCHAR(50) NOT NULL,
+	`start_date` DATE,
+	`end_date` DATE,
+	`status` VARCHAR(20) NOT NULL,
+	PRIMARY KEY (`member_code`, `course`, `start_date`)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+DEFAULT COLLATE=utf8mb4_unicode_ci
+;
+
+
 DROP TABLE IF EXISTS `#__memberportal_uploaded_files`;
 
 CREATE TABLE `#__memberportal_uploaded_files` (
