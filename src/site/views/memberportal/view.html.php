@@ -136,6 +136,156 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		}
 
 		// Courses
+		$this->course_structure = [
+			[
+				"category" => "慕道及初信系列",
+				"css_classes" => "course-0",
+				"courses" => [
+					"啟發課程",
+					"基督教價值覶",
+					"靈修生活-簡易讀經法",
+					"敬拜生活",
+					"禱告服事與傳福音訓練"
+				],
+			],
+			[
+				"category" => "小組栽培系列",
+				"css_classes" => "course-1",
+				"courses" => [
+					"靈程指引",
+					"茁苗",
+					"一針見血的福音",
+				],
+			],
+			[
+				"category" => "栽培受浸系列",
+				"css_classes" => "course-2",
+				"courses" => [
+					"經歷神營會",
+					"認識其他宗教",
+					"豐盛的生命",
+					"浸禮班",
+				],
+			],
+			[
+				"category" => "基本組員成長系列 - 1",
+				"css_classes" => "course-3",
+				"courses" => [
+					"靈界的探索",
+					"豐盛的恩光",
+					"以弗所書",
+					"生命成長營",
+				],
+			],
+			[
+				"category" => "基本組員成長系列 - 2",
+				"css_classes" => "course-4",
+				"courses" => [
+					"基督生平1-6冊",
+					"摩西五經1-2冊",
+					"保羅生平1-3冊",
+					"百萬領袖1-6冊",
+					"靈命塑造營",
+				],
+			],
+			[
+				"category" => "人生歷程系列",
+				"css_classes" => "course-5",
+				"courses" => [
+					"生死教育",
+					"啟發家長-兒童",
+					"啟發家長-少年",
+					"從雅歌看婚姻與愛情",
+					"好爸爸學堂",
+					"輕輕鬆鬆談管教",
+				],
+			],
+			[
+				"category" => "單卷聖經系列",
+				"css_classes" => "course-6",
+				"courses" => [
+					"雅各書",
+					"士師記",
+					"彼得前後書",
+					"路得記",
+					"約翰一二三書",
+					"傳道書",
+					"箴言-智在必得",
+					"希伯來書",
+					"聖經中的男人",
+					"聖經中的女人",
+					"啟示錄",
+				],
+			],
+			[
+				"category" => "事奉系列",
+				"css_classes" => "course-7 white-font",
+				"courses" => [
+					"核心組員訓練班",
+					"組長訓練班",
+				],
+			],
+		];
+		$this->course_status = [
+			// 慕道及初信系列
+			"啟發課程" => "undone",
+			"基督教價值覶" => "undone",
+			"靈修生活-簡易讀經法" => "undone",
+			"敬拜生活" => "undone",
+			"禱告服事與傳福音訓練" => "undone",
+
+			// 小組栽培系列
+			"靈程指引" => "undone",
+			"茁苗" => "undone",
+			"一針見血的福音" => "undone",
+
+			// 栽培受浸系列
+			"經歷神營會" => "undone",
+			"認識其他宗教" => "undone",
+			"豐盛的生命" => "undone",
+			"浸禮班" => "undone",
+
+			// 基本組員成長系列 - 1
+			"靈界的探索" => "undone",
+			"豐盛的恩光" => "undone",
+			"以弗所書" => "undone",
+			"生命成長營" => "undone",
+
+			// 基本組員成長系列 - 2
+			"基督生平1-6冊" => "undone",
+			"摩西五經1-2冊" => "undone",
+			"保羅生平1-3冊" => "undone",
+			"百萬領袖1-6冊" => "undone",
+			"靈命塑造營" => "undone",
+
+			// 人生歷程系列
+			"生死教育" => "undone",
+			"啟發家長-兒童" => "undone",
+			"啟發家長-少年" => "undone",
+			"從雅歌看婚姻與愛情" => "undone",
+			"好爸爸學堂" => "undone",
+			"輕輕鬆鬆談管教" => "undone",
+
+			// 單卷聖經系列
+			"雅各書" => "undone",
+			"士師記" => "undone",
+			"彼得前後書" => "undone",
+			"路得記" => "undone",
+			"約翰一二三書" => "undone",
+			"傳道書" => "undone",
+			"箴言-智在必得" => "undone",
+			"希伯來書" => "undone",
+			"聖經中的男人" => "undone",
+			"聖經中的女人" => "undone",
+			"啟示錄" => "undone",
+
+			// 事奉系列
+			"核心組員訓練班" => "undone",
+			"組長訓練班" => "undone",
+		];
+		foreach($this->completed_courses as $course) {
+			$this->course_status[$course->course] = "done";
+		}
 		$this->completed_course_cnt = count($this->completed_courses);
 
 		// Set up media paths

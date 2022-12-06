@@ -129,6 +129,10 @@ defined('_JEXEC') or die('Restricted access');
     margin-left: 13px;
   }
 
+  .white-font {
+    color: #ffffff;
+  }
+
   .course-group {
     vertical-align: top;
     padding: 0px !important;
@@ -407,93 +411,24 @@ defined('_JEXEC') or die('Restricted access');
   <div class="row">
     <div class="col-12 info-box">
       <div class="col-12 info-course">
+      <?php
+        foreach($this->course_structure as $category) {
+      ?>
         <div class="course row">
-          <div class="course-name course-0 col-3">慕道及初信系列</div>
+          <div class="course-name col-3 <?php echo $category["css_classes"]; ?>"><?php echo $category["category"]; ?></div>
           <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">啟發課程</div>
-            <div class="course-name course-undone">基督教價值覶</div>
-            <div class="course-name course-undone">靈修生活-簡易讀經法</div>
-            <div class="course-name course-undone">敬拜生活</div>
-            <div class="course-name course-undone">禱告服事與傳福音訓練</div>
+          <?php
+            foreach($category["courses"] as $course) {
+          ?>
+            <div class="course-name course-<?php echo $this->course_status[$course]; ?>"><?php echo $course; ?></div>
+          <?php
+            }
+          ?>
           </div>
         </div>
-
-        <div class="course row">
-          <div class="course-name course-1 col-3">小組栽培系列</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">靈程指引</div>
-            <div class="course-name course-done">茁苗</div>
-            <div class="course-name course-done">一針見血的福音</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-2 col-3">栽培受浸系列</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">經歷神營會</div>
-            <div class="course-name course-done">認識其他宗教</div>
-            <div class="course-name course-done">豐盛的生命</div>
-            <div class="course-name course-done">浸禮班</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-3 col-3">基本組員成長系列 - 1</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">靈界的探索</div>
-            <div class="course-name course-done">豐盛的恩光</div>
-            <div class="course-name course-done">以弗所書</div>
-            <div class="course-name course-done">生命成長營</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-4 col-3">基本組員成長系列 - 2</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">基督生平1-6冊</div>
-            <div class="course-name course-undone">摩西五經1-2冊</div>
-            <div class="course-name course-done">保羅生平1-3冊</div>
-            <div class="course-name course-undone">百萬領袖1-6冊</div>
-            <div class="course-name course-done">靈命塑造營</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-5 col-3">人生歷程系列</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-undone">生死教育</div>
-            <div class="course-name course-undone">啟發家長-兒童</div>
-            <div class="course-name course-undone">啟發家長-少年</div>
-            <div class="course-name course-done">從雅歌看婚姻與愛情</div>
-            <div class="course-name course-undone">好爸爸學堂</div>
-            <div class="course-name course-undone">輕輕鬆鬆談管教</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-6 col-3">單卷聖經系列</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-undone">雅各書</div>
-            <div class="course-name course-undone">士師記</div>
-            <div class="course-name course-done">彼得前後書</div>
-            <div class="course-name course-undone">路得記</div>
-            <div class="course-name course-undone">約翰一二三書</div>
-            <div class="course-name course-undone">傳道書</div>
-            <div class="course-name course-undone">箴言-智在必得</div>
-            <div class="course-name course-undone">希伯來書</div>
-            <div class="course-name course-done">聖經中的男人</div>
-            <div class="course-name course-undone">聖經中的女人</div>
-            <div class="course-name course-done">啟示錄</div>
-          </div>
-        </div>
-
-        <div class="course row">
-          <div class="course-name course-7 col-3" style="color:#ffffff;">事奉系列</div>
-          <div class="course-group col-9 col-md-8">
-            <div class="course-name course-done">核心組員訓練班</div>
-            <div class="course-name course-done">組長訓練班</div>
-          </div>
-        </div>
+      <?php
+        }
+      ?>
       </div>
     </div>
   </div>
