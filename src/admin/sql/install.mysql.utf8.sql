@@ -138,9 +138,11 @@ DROP TABLE IF EXISTS `#__memberportal_uploaded_files`;
 
 CREATE TABLE `#__memberportal_uploaded_files` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`uploaded` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`uploaded` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`uploaded_by` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`orig_file_name` VARCHAR(255) NOT NULL,
+	`saved_file_name` VARCHAR(255) NOT NULL,
+	`import_result` TEXT,
 	PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB

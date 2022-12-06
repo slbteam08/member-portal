@@ -21,17 +21,65 @@ class MemberPortalController extends JControllerLegacy
 		}
 	}
 
+	public function addUploadedFile($user, $uploaded_file)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$uploaded_file_values = [
+			implode(", ", [
+				$db->quote($user),
+				$db->quote($uploaded_file["orig_file_name"]),
+				$db->quote($uploaded_file["saved_file_name"]),
+				$db->quote($uploaded_file["import_result"]),
+			])
+		];
+
+		$columns = array('uploaded_by', 'orig_file_name', 'saved_file_name', 'import_result');
+		$query
+			->insert($db->quoteName('#__memberportal_uploaded_files'))
+    		->columns($db->quoteName($columns))
+    		->values($uploaded_file_values);
+		$db->setQuery($query);
+		$db->execute();
+	}
+
 	public function uploadExcel() {
 		$app = JFactory::getApplication(); 
 		$input = $app->input;
 		$file  = $input->files->get('upload_file');
 
+		// Save uploaded file
+		// - Destination folder: /var/www/clients/client1/web1/web/administrator/components/com_memberportal/uploads
+		$ts = date("Ymd_His");
+		$ext = JFile::getExt($file['name']);
+		$filename = JFile::makeSafe($ts . "." . $ext);
+
+		$src = $file['tmp_name'];
+		$dest = JPATH_COMPONENT . DS . "uploads" . DS . $filename;
+		
+		if (JFile::upload($src, $dest)) {
+			print_r("<p>Saved file to " . $dest);
+		} else {
+			print_r("Failed to save file");
+			exit(0);
+		}
+
+		// Add uploaded file record
+		$uploaded_file = [
+			"orig_file_name" => $file['name'],
+			"saved_file_name" => $filename,
+			"import_result" => "Successful",
+		];
+		$user = JFactory::getUser();
+		$this->addUploadedFile($user->id, $uploaded_file);
+
 		// Read member list
-		$uploadedExcel = $file["tmp_name"];
+		$uploadedExcel = $dest;
 		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($uploadedExcel);
 		$memberSheet = $spreadsheet->getSheetByName("小組組員");
 		$rows = $memberSheet->toArray();
-		
+
 		$members = [];
 		$cell_groups = [];
 		$member_attrs = [];
