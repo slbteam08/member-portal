@@ -150,4 +150,26 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         return $rows;
     }
+
+    public function getLatestUploadDate()
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                "DATE(CONVERT_TZ(uploaded, '+00:00', '+08:00')) as latest_date"
+            ])
+            ->from($db->quoteName('#__memberportal_uploaded_files'))
+            ->order('id desc')
+            ->setLimit('1');
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        if (count($rows) == 1) {
+            return \DateTime::createFromFormat("Y-m-d", $rows[0]->latest_date)->format("Y 年 n 月 j 日");
+        } else {
+            return "";
+        }
+    }
 }

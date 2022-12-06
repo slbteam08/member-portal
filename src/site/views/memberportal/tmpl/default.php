@@ -317,7 +317,7 @@ defined('_JEXEC') or die('Restricted access');
       <br> 組員身份 : <?php echo $this->info->cell_role; ?>
       <br>會友分類 : <?php echo $this->info->member_category; ?>
     </div>
-    <div class="col-sm-5 col-12 update-info">以下資料最後更新日期為 : 2022年 1 月10 日</div>
+    <div class="col-sm-5 col-12 update-info">以下資料最後更新日期為 : <?php echo $this->latest_date; ?></div>
   </div>
 
   <!-- top 4 info -->

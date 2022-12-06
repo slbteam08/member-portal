@@ -36,6 +36,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$year = 2021;
 		$model = $this->getModel();
 		
+		$this->latest_date = $model->getLatestUploadDate();
 		$this->num_weeks = $model->getNumWeeks($year);
 		$this->cell_schedule = $model->getCellSchedule($year);
 		$this->info = $model->getMemberInfo($member_code);
