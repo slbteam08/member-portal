@@ -89,7 +89,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			}
 		}
 		foreach($this->attd_cell_dates as $date) {
-			if ($date->event_type == "小組") {
+			if ($date->event_type == "小組聚會") {
 				$present = $cell_present;
 			} else {
 				$present = $zone_present;
