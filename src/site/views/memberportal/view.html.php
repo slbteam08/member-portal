@@ -33,7 +33,11 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		}
 
 		// Get member data
-		$year = 2021;
+		$year = $input->get("year"); // Secret override
+		if (is_null($year)) {
+			$year = 2022;
+		}
+
 		$model = $this->getModel();
 		
 		$this->latest_date = $model->getLatestUploadDate();
