@@ -139,7 +139,7 @@ class MemberPortalController extends JControllerLegacy
 		$db->truncateTable('#__memberportal_members');
 
 		// Insert members
-		$member = array_unique($member, SORT_REGULAR);
+		$members = array_unique($members, SORT_REGULAR);
 		$member_values = [];
 		foreach($members as $member) {
 			$member_values[] = $db->quote($member[0]) . ', ' . $db->quote($member[1]);
@@ -252,6 +252,7 @@ class MemberPortalController extends JControllerLegacy
 				$date, $member_code, $visitor_name, $cell_group_name, $event_type
 			]);
 		}
+		$attendance_cell_values = array_unique($attendance_cell_values);
 
 		$query = $db->getQuery(true);
 		$columns = array('date', 'member_code', 'visitor_name', 'cell_group_name', 'event_type');
@@ -284,7 +285,7 @@ class MemberPortalController extends JControllerLegacy
 			$date_arr = date_parse_from_format("j/n/Y", $row[0]);
 			if ($date_arr["error_count"] > 0) {
 				// Parse with another format
-				$date_arr = date_parse_from_format("M-y", $row[0]);
+				$date_arr = date_parse_from_format("Y-m", $row[0]);
 				$date_arr["day"] = 1;
 			}
 			$date = implode("-", [$date_arr["year"], $date_arr["month"], $date_arr["day"]]);
