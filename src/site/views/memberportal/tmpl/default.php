@@ -594,12 +594,12 @@ defined('_JEXEC') or die('Restricted access');
                   name: '祟拜出席',
                   color: '#2465BF'
                 },
-                {
-                  from: 8,
-                  to: 9,
-                  name: '分區出席',
-                  color: '#C76CD8'
-                },
+                // {
+                //   from: 8,
+                //   to: 9,
+                //   name: '分區出席',
+                //   color: '#C76CD8'
+                // },
                 // {
                 //   from: 9,
                 //   to: 9,
