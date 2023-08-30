@@ -131,13 +131,44 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			"執事會成員" => "deacon",
 			"常委會成員" => "committee",
 		];
+		$this->excel_post_mapping = [
+			// "主任牧師" => "",
+			// "實習區牧" => "",
+			"組長" => "組長",
+			// "祈禱服事隊" => "",
+			// "執事" => "",
+			"常委會" => "常委會成員",
+			"核心" => "核心",
+			"區長" => "區長",
+			"執事會" => "執事會成員",
+			"少牧敬拜隊導師" => "少牧導師",
+			"敬拜隊" => "敬拜隊",
+			"幼牧" => "兒牧導師<br>(幼稚級)",
+			"迦勒組長" => "組長",
+			"兒牧導師" => "兒牧導師<br>(小學級)",
+			"兒牧級主任" => "兒牧導師<br>(小學級)",
+			"司庫" => "司庫<br>(數奉獻)",
+			"少牧導師" => "少牧導師",
+			"實習區長" => "區長",
+			"詩班" => "詩班",
+			"招待" => "招待員",
+			"天韻詩班" => "詩班",
+			"兒牧行政" => "兒牧行政<br>(小學級)",
+			"歌詠詩班" => "詩班",
+			// "兒牧-彩虹王國" => "",
+			// "兒牧Helper" => "",
+			// "少牧Helper" => "",
+		];
 		$this->post_data = [];
 		foreach($this->post_mapping as $post => $prefix) {
 			$this->post_data[$post] = $prefix . ".jpg";
 		}
 		foreach($this->serving_posts as $post_obj) {
-			$post = $post_obj->post;
-			$this->post_data[$post] = $this->post_mapping[$post] . "_on.jpg";
+			$excel_post = $post_obj->post;
+			if (array_key_exists($excel_post, $this->excel_post_mapping)) {
+				$post = $this->excel_post_mapping[$excel_post];
+				$this->post_data[$post] = $this->post_mapping[$post] . "_on.jpg";
+			}
 		}
 
 		// Courses
