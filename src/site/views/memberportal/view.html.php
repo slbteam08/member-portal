@@ -37,6 +37,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		if (is_null($year)) {
 			$year = 2022;
 		}
+		$this->year = $year;
 
 		$model = $this->getModel();
 		

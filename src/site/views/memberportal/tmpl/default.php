@@ -42,6 +42,15 @@ defined('_JEXEC') or die('Restricted access');
     font-size: 12px;
     text-align: right;
     color: #aaaaaa;
+    margin-bottom: 12px;
+  }
+
+  .year-select-container {
+    text-align: right;
+  }
+
+  .year-select {
+    width: 68px;
   }
 
   .info-icon,
@@ -305,6 +314,14 @@ defined('_JEXEC') or die('Restricted access');
     ];
     return series;
   }
+
+  function onYearChanged() {
+    year = document.getElementById("year").value;
+    
+    params = new URLSearchParams(window.location.search);
+    params.set("year", year);
+    window.location.search = params.toString();
+  }
 </script>
 
 <div class="container-fluid user-content">
@@ -317,7 +334,19 @@ defined('_JEXEC') or die('Restricted access');
       <br> 組員身份 : <?php echo $this->info->cell_role; ?>
       <br>會友分類 : <?php echo $this->info->member_category; ?>
     </div>
-    <div class="col-sm-5 col-12 update-info">以下資料最後更新日期為 : <?php echo $this->latest_date; ?></div>
+    <div class="col-sm-5 col-12">
+      <div class="update-info">
+        以下資料最後更新日期為 : <?php echo $this->latest_date; ?>
+      </div>
+      <div class="year-select-container">
+        顯示數據年份：
+        <select class="year-select" name="year" id="year" onchange="onYearChanged()">
+          <option value="2021" <?php if ($this->year==2021) { echo "selected"; } ?>>2021</option>
+          <option value="2022" <?php if ($this->year==2022) { echo "selected"; } ?>>2022</option>
+          <option value="2023" <?php if ($this->year==2023) { echo "selected"; } ?>>2023</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <!-- top 4 info -->
