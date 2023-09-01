@@ -53,8 +53,12 @@ defined('_JEXEC') or die('Restricted access');
     width: 68px;
   }
 
+  .info-radar {
+    height:100%;
+  }
+
   .info-icon,
-  .info-radialBar,
+  .info-radar,
   .info-heatMap,
   .info-post,
   .info-course {
@@ -425,10 +429,10 @@ defined('_JEXEC') or die('Restricted access');
     <!-- donut chart -->
 
     <div class="col-12 col-sm-5 info-box">
-      <div class="col-12 info-radialBar">
+      <div class="col-12 info-radar">
         <div id="app">
           <div id="chart">
-            <apexchart type="radialBar" height="350" :options="chartOptions" :series="series"></apexchart>
+            <apexchart type="radar" height="310" :options="chartOptions" :series="series"></apexchart>
           </div>
         </div>
       </div>
@@ -472,88 +476,50 @@ defined('_JEXEC') or die('Restricted access');
     },
     data: {
       series: [
-        <?php echo $this->attd_ceremony_pcnt; ?>, 
-        <?php echo $this->attd_cell_pcnt; ?>, 
-        <?php echo $this->offering_pcnt; ?>,
+        {
+          name: "Series 1",
+          data: [
+            <?php echo $this->attd_ceremony_pcnt; ?>, 
+            <?php echo $this->attd_cell_pcnt; ?>, 
+            <?php echo $this->offering_pcnt; ?>,
+          ]
+        }
       ],
       chartOptions: {
         chart: {
-          height: 350,
-          type: 'radialBar',
+          height: 310,
+          type: 'radar',
+          toolbar: {
+            show: false
+          }
         },
-        plotOptions: {
-          radialBar: {
-            dataLabels: {
-              name: {
-                fontSize: '20px',
-              },
-              value: {
-                fontSize: '16px',
-              },
-              total: {
-                show: false,
-                label: 'Total',
-                formatter: function(w) {
-                  // By default this function returns the average of all series. The below is just an example to show the use of custom formatter function
-                  return 249
-                }
-              }
+        dataLabels: {
+          enabled: true,
+          background: {
+            enabled: true,
+            borderRadius:2,
+          },
+          style: {
+              colors: ["#195bf1"],
+              fontSize: "9px"
+          }
+        },
+        xaxis: {
+          categories: ["崇拜出席", "小組出席", "奉獻"],
+          labels: {
+            show: true,
+            style: {
+              colors: ["#188382", "#188382", "#188382"],
+              fontSize: "14px"
             }
           }
         },
-        labels: ['祟拜出席', '小組出席', '奉獻'],
-        colors: ['#32A09C', '#2465BF', '#9DA818'],
-        legend: {
-          show: true,
-          showForSingleSeries: false,
-          showForNullSeries: true,
-          showForZeroSeries: true,
-          position: 'right',
-          horizontalAlign: 'left',
-          floating: false,
-          fontSize: '14px',
-          fontFamily: 'Helvetica, Arial',
-          fontWeight: 400,
-          formatter: undefined,
-          inverseOrder: false,
-          width: undefined,
-          height: undefined,
-          tooltipHoverFormatter: undefined,
-          customLegendItems: [],
-          offsetX: 0,
-          offsetY: 0,
-          labels: {
-            colors: undefined,
-            useSeriesColors: false
-          },
-          markers: {
-            width: 15,
-            height: 15,
-            strokeWidth: 0,
-            strokeColor: '#000',
-            fillColors: undefined,
-            radius: 0,
-            customHTML: undefined,
-            onClick: undefined,
-            offsetX: -2,
-            offsetY: 2
-          },
-          itemMargin: {
-            horizontal: 5,
-            vertical: 0
-          },
-          onItemClick: {
-            toggleDataSeries: true
-          },
-          onItemHover: {
-            highlightDataSeries: true
-          },
-        },
+        tooltip: {
+          shared: false,
+          intersect: false
+        }
       },
-
-
     },
-
   })
 
   // heatmap (weekly)
