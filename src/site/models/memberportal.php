@@ -151,6 +151,26 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return $rows;
     }
 
+    public function getLatestDataMonth()
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                "max(date) as latest_date"
+            ])
+            ->from($db->quoteName('#__memberportal_attendance_cell'));
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        if (count($rows) == 1) {
+            return \DateTime::createFromFormat("Y-m-d", $rows[0]->latest_date)->format("Y 年 n 月");
+        } else {
+            return "";
+        }
+    }
+
     public function getLatestUploadDate()
     {
         $db    = JFactory::getDbo();
