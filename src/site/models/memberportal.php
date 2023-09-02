@@ -12,6 +12,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return ($date->format("W") === "53" ? 53 : 52);
     }
 
+    public function getNumWeeksInRange($start, $end)
+    {
+        return 52; // Hardcode for now
+    }
+
     public function getMemberInfo($member_code)
     {
         // Initialize variables.
@@ -61,6 +66,27 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return $rows;
     }
 
+    public function getAttendanceCeremonyByRange($member_code, $start, $end)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'date', 
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                "WEEKOFYEAR(date + INTERVAL 2 DAY) as week_of_year"
+            ])
+            ->from($db->quoteName('#__memberportal_attendance_ceremony'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("date >= " . $db->quote($start))
+            ->where("date < ". $db->quote($end));
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
     public function getCellSchedule($year)
     {
         $db    = JFactory::getDbo();
@@ -99,6 +125,28 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return $rows;
     }
 
+    public function getAttendanceCellByRange($member_code, $start, $end)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'date', 
+                "YEARWEEK(date + INTERVAL 1 DAY) as year_week", 
+                "WEEKOFYEAR(date + INTERVAL 1 DAY) as week_of_year",
+                "event_type",
+            ])
+            ->from($db->quoteName('#__memberportal_attendance_cell'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("date >= " . $db->quote($start))
+            ->where("date < " . $db->quote($end));
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
     public function getOfferingMonths($member_code, $year)
     {
         $db    = JFactory::getDbo();
@@ -110,6 +158,25 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             ->from($db->quoteName('#__memberportal_offerings'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("YEAR(date) = " . $year);
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
+    public function getOfferingMonthsByRange($member_code, $start, $end)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select([
+                'date', 'MONTH(date) as month'
+            ])
+            ->from($db->quoteName('#__memberportal_offerings'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("date >= " . $db->quote($start))
+            ->where("date < " . $db->quote($end));
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();

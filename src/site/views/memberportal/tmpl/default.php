@@ -326,6 +326,12 @@ defined('_JEXEC') or die('Restricted access');
     params.set("year", year);
     window.location.search = params.toString();
   }
+
+  function goToReport() {
+    params = new URLSearchParams(window.location.search);
+    params.set("view", "member-report");
+    window.location.search = params.toString();
+  }
 </script>
 
 <div class="container-fluid user-content">
@@ -403,9 +409,12 @@ defined('_JEXEC') or die('Restricted access');
             <apexchart type="heatmap" height="100" width="100%" :options="chartOptions" :series="series"></apexchart>
           </div>
         </div>
+
+        <div class="report-link">
+          <a id="back" href="javascript:goToReport()">過去12個月出席及奉獻統計</a>
+        </div>
       </div>
     </div>
-
   </div>
 
   <!-- position -->
