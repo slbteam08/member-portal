@@ -312,7 +312,7 @@ defined('_JEXEC') or die('Restricted access');
     var series = [
       <?php
       foreach ($this->offering_series as $key => $value) {
-        echo "{x: '" . $key . "', y: " . $value . "},";
+        echo "{x: '" . $key . "月', y: " . $value . "},";
       }
       ?>
     ];
@@ -394,7 +394,7 @@ defined('_JEXEC') or die('Restricted access');
       <div class="col-12 info-heatMap">
         <div id="heatmap-week">
           <div id="chart2">
-            <apexchart type="heatmap" height="150" width="100%" :options="chartOptions" :series="series"></apexchart>
+            <apexchart type="heatmap" height="200" width="100%" :options="chartOptions" :series="series"></apexchart>
           </div>
         </div>
 
@@ -633,6 +633,25 @@ defined('_JEXEC') or die('Restricted access');
         title: {
           text: ' '
         },
+        xaxis: {
+          tickPlacement: 'between',
+          group: {
+            groups: [
+              { title: '1月', cols: 5 },
+              { title: '2月', cols: 4 },
+              { title: '3月', cols: 4 },
+              { title: '4月', cols: 5 },
+              { title: '5月', cols: 4 },
+              { title: '6月', cols: 4 },
+              { title: '7月', cols: 5 },
+              { title: '8月', cols: 4 },
+              { title: '9月', cols: 4 },
+              { title: '10月', cols: 5 },
+              { title: '11月', cols: 4 },
+              { title: '12月', cols: 4 },
+            ]
+          },
+        }
       },
 
 
@@ -712,7 +731,7 @@ defined('_JEXEC') or die('Restricted access');
           }
         },
         dataLabels: {
-          enabled: false
+          enabled: false,
         },
         stroke: {
           width: 1

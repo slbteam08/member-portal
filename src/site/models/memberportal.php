@@ -7,7 +7,9 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 {
     public function getNumWeeks($year)
     {
-        return 52; // Fixed for now
+        $date = new DateTime;
+        $date->setISODate($year, 53);
+        return ($date->format("W") === "53" ? 53 : 52);
     }
 
     public function getMemberInfo($member_code)
