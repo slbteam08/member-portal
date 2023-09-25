@@ -266,7 +266,6 @@ class MemberPortalController extends JControllerLegacy
 		print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows");
 
 
-
 		///////////////////////////////////////////////////////////////////////
 		// Offerings
 		///////////////////////////////////////////////////////////////////////
@@ -328,6 +327,76 @@ class MemberPortalController extends JControllerLegacy
 		$db->execute();
 
 		print_r("<p>Loaded " . count($offering_values) . " offering rows");
+
+
+		///////////////////////////////////////////////////////////////////////
+		// Offerings v2
+		///////////////////////////////////////////////////////////////////////
+
+		$sheet = $spreadsheet->getSheetByName("奉獻記錄v2");
+		$rows = $sheet->toArray();
+
+		// Truncate member attributes table
+		$db->truncateTable('#__memberportal_offerings');
+
+		// Insert offerings
+		$offering_members = [];
+		$months = [];
+		foreach($rows as $idx => $row) {
+			if ($idx == 0) {
+				// Parse months from columns header
+				for ($col=1; $col<count($row); $col++) {
+					$title = $row[$col];
+					$date_arr = date_parse_from_format("Y-m", $title);
+					$date_arr["day"] = 1;
+					$date = implode("-", [$date_arr["year"], $date_arr["month"], $date_arr["day"]]);
+					$months[] = $date;
+				}
+				continue;  // Skip header
+			}
+
+			$member_code = $row[0];
+
+			// Parse columns
+			for ($col=1; $col<count($row); $col++) {
+				if (!empty($row[$col])) {
+					$num_offerings = $row[$col];
+					$date = $months[$col-1];
+
+					// Put into dict for deduplication
+					if (!array_key_exists($member_code, $offering_members)) {
+						$offering_members[$member_code] = [];
+					}
+					$member_dates = &$offering_members[$member_code];
+					if (in_array($date, $member_dates)) {
+						$member_dates[$date] = max($member_dates[$date], $num_offerings);
+					} else {
+						$member_dates[$date] = $num_offerings;
+					}
+				}
+			}
+		}
+
+		$offering_values = [];
+		foreach($offering_members as $member_code => $member_dates) {
+			foreach($member_dates as $date => $num_offerings) {
+				$offering_values[] = implode(', ', [
+					$db->quote($date), $db->quote($member_code), $num_offerings
+				]);
+			}
+		}
+		$offering_values = array_unique($offering_values);
+
+		$query = $db->getQuery(true);
+		$columns = array('date', 'member_code', 'num_offerings');
+		$query
+			->insert($db->quoteName('#__memberportal_offerings'))
+    		->columns($db->quoteName($columns))
+    		->values($offering_values);
+		$db->setQuery($query);
+		$db->execute();
+
+		print_r("<p>Loaded " . count($offering_values) . " offering v2 rows");
 
 
 		///////////////////////////////////////////////////////////////////////
