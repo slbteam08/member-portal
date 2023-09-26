@@ -336,9 +336,6 @@ class MemberPortalController extends JControllerLegacy
 		$sheet = $spreadsheet->getSheetByName("奉獻記錄v2");
 		$rows = $sheet->toArray();
 
-		// Truncate member attributes table
-		$db->truncateTable('#__memberportal_offerings');
-
 		// Insert offerings
 		$offering_members = [];
 		$months = [];
@@ -387,6 +384,15 @@ class MemberPortalController extends JControllerLegacy
 		}
 		$offering_values = array_unique($offering_values);
 
+		// Delete months covered by v2 sheet
+		$query = $db->getQuery(true);
+		$query
+			->delete($db->quoteName('#__memberportal_offerings'))
+			->where($db->quoteName('date') . ' between ' . $db->quote($months[0]) . ' and '. $db->quote(end($months)));
+		$db->setQuery($query);
+		$db->execute();
+
+		// Insert rows
 		$query = $db->getQuery(true);
 		$columns = array('date', 'member_code', 'num_offerings');
 		$query
