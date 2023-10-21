@@ -81,6 +81,12 @@ defined('_JEXEC') or die('Restricted access');
     padding: 10px !important;
   }
 
+  .greyout{
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter: gray;
+    opacity: 0.6;
+  }
 
   .course {
     text-align: left;
@@ -423,10 +429,16 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-12 col-sm-7 info-box">
       <div class="col-12 row info-post">
         <?php
-          foreach($this->post_data as $post => $jpg) {
+          foreach($this->post_data as $post => $post_row) {
+            $svg = $post_row[0];
+            if ($post_row[1] == 0) {
+              $greyout_class = 'class="greyout"';
+            } else {
+              $greyout_class = "";
+            }
         ?>
           <div class="col-4 col-sm-2">
-            <img src="<?php echo $this->images_path . "/" . $jpg; ?>" />
+            <img src="<?php echo $this->images_path . "/" . $svg; ?>" <?php echo $greyout_class; ?> />
             <p><?php echo $post; ?></p>
           </div>
         <?php
