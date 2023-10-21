@@ -212,7 +212,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             ])
             ->from($db->quoteName('#__memberportal_courses'))
             ->where("member_code = " . $db->quote($member_code))
-            ->where("status = '已完成'");
+            ->where("status = '完成'");
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
