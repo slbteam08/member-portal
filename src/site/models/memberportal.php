@@ -234,9 +234,9 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $rows = $db->loadObjectList();
 
         if (count($rows) == 1) {
-            return \DateTime::createFromFormat("Y-m-d", $rows[0]->latest_date)->format("Y 年 n 月");
+            return $rows[0]->latest_date;
         } else {
-            return "";
+            return null;
         }
     }
 

@@ -41,7 +41,12 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 
 		$model = $this->getModel();
 		
-		$this->latest_month = $model->getLatestDataMonth();
+		$this->latest_month_val = $model->getLatestDataMonth();
+		if (is_null($this->latest_month_val)) {
+			$this->latest_month = "";
+		} else {
+			$this->latest_month = \DateTime::createFromFormat("Y-m-d", $this->latest_month_val)->format("Y 年 n 月");
+		}
 		$this->latest_date = $model->getLatestUploadDate();
 		$this->num_weeks = $model->getNumWeeks($year);
 		$this->cell_schedule = $model->getCellSchedule($year);
@@ -163,6 +168,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			"結他" => "敬拜隊",
 			"鼓手" => "敬拜隊",
 			"bass" => "敬拜隊",
+			"敬拜隊" => "敬拜隊",
 			"執事會成員" => "執事會成員",
 			"實習區牧" => "區牧",
 			"詩班員" => "歌詠詩班",
