@@ -420,6 +420,7 @@ class MemberPortalController extends JControllerLegacy
 			$schedule_values = [];
 			foreach($rows as $idx => $row) {
 				if ($idx == 0) continue;  // Skip header
+				if (empty($row[0])) continue; // Skip invalid member code
 
 				$year = $row[0];
 				$week = $row[1];
