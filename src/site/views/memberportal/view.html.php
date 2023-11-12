@@ -44,8 +44,13 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->latest_month_val = $model->getLatestDataMonth();
 		if (is_null($this->latest_month_val)) {
 			$this->latest_month = "";
+			$this->latest_week = date("W");
+			$this->latest_month_num = date("n");
 		} else {
-			$this->latest_month = \DateTime::createFromFormat("Y-m-d", $this->latest_month_val)->format("Y 年 n 月");
+			$date_obj = \DateTime::createFromFormat("Y-m-d", $this->latest_month_val);
+			$this->latest_month = $date_obj->format("Y 年 n 月");
+			$this->latest_week = $date_obj->format("W");
+			$this->latest_month_num = $date_obj->format("n");
 		}
 		$this->latest_date = $model->getLatestUploadDate();
 		$this->num_weeks = $model->getNumWeeks($year);
@@ -55,8 +60,8 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->attd_cell_dates = $model->getAttendanceCell($member_code, $year);
 		$this->offering_months = $model->getOfferingMonths($member_code, $year);
 		if ($year == date("Y")) {
-			$this->current_week = date("W");
-			$this->current_month = date("n");
+			$this->current_week = $this->latest_week;
+			$this->current_month = $this->latest_month_num;
 		} else {
 			$this->current_week = $this->num_weeks;
 			$this->current_month = 12;
