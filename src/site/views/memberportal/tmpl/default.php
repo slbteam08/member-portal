@@ -358,9 +358,8 @@ defined('_JEXEC') or die('Restricted access');
       <div class="year-select-container">
         顯示數據年份：
         <select class="year-select" name="year" id="year" onchange="onYearChanged()">
-          <option value="2021" <?php if ($this->year==2021) { echo "selected"; } ?>>2021</option>
-          <option value="2022" <?php if ($this->year==2022) { echo "selected"; } ?>>2022</option>
           <option value="2023" <?php if ($this->year==2023) { echo "selected"; } ?>>2023</option>
+          <option value="2022" <?php if ($this->year==2022) { echo "selected"; } ?>>2022</option>
         </select>
       </div>
     </div>
