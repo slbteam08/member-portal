@@ -13,6 +13,17 @@ use Joomla\CMS\Uri\Uri;
  */
 class MemberPortalViewMemberPortal extends JViewLegacy
 {
+	function getSaturdays($year) {
+		$cur_sat = strtotime("first saturday of January " . $year);
+		$saturdays = [];
+		while (date("Y", $cur_sat) == $year) {
+			$saturdays[] = date("Y-m-d", $cur_sat);
+			$cur_sat = strtotime("+7 days", $cur_sat);
+		}
+	
+		return $saturdays;
+	}
+
 	/**
 	 * Display the Member Portal view
 	 *
@@ -70,6 +81,20 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->serving_posts = $model->getServingPosts($member_code);
 		$this->completed_courses = $model->getCompletedCourses($member_code);
 
+		// Number of weeks per month
+		$this->num_weeks_by_month = [];
+		$this->week_of_year_mapping = [];
+		foreach($this->getSaturdays($year) as $key => $saturday) {
+			$week = \DateTime::createFromFormat("Y-m-d", $saturday)->format("W");
+			$month = \DateTime::createFromFormat("Y-m-d", $saturday)->format("n");
+			if (!array_key_exists($month, $this->num_weeks_by_month)) {
+				$this->num_weeks_by_month[$month] = 0;
+			}
+			$this->num_weeks_by_month[$month] += 1;
+
+			$this->week_of_year_mapping[$saturday] = $key + 1;
+		}
+
 		// Attendance code
 		$ceremony_present = 6;
 		$ceremony_absent = 5;
@@ -84,7 +109,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		// Evaluate attendance arrays
 		$this->attd_ceremony_series = array_fill(1, $this->num_weeks, $ceremony_absent);
 		foreach($this->attd_ceremony_dates as $date) {
-			$this->attd_ceremony_series[$date->week_of_year] = $ceremony_present;
+			$this->attd_ceremony_series[$this->week_of_year_mapping[$date->week_start]] = $ceremony_present;
 		}
 		$this->attd_ceremony_cnt = count($this->attd_ceremony_dates);  // TODO: Count distinct weeks
 
@@ -107,7 +132,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			} else {
 				$present = $zone_present;
 			}
-			$this->attd_cell_series[$date->week_of_year] = $present;
+			$this->attd_cell_series[$this->week_of_year_mapping[$date->week_start]] = $present;
 		}
 		$this->attd_cell_cnt = count($this->attd_cell_dates);
 

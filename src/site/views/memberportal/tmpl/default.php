@@ -325,6 +325,17 @@ defined('_JEXEC') or die('Restricted access');
     return series;
   }
 
+  function getNumWeeksByMonth() {
+    var months = [
+      <?php
+      foreach ($this->num_weeks_by_month as $key => $value) {
+        echo "{ title: '" . $key . "月', cols: " . $value . "},";
+      }
+      ?>
+    ];
+    return months;
+  }
+
   function onYearChanged() {
     year = document.getElementById("year").value;
     
@@ -657,20 +668,7 @@ defined('_JEXEC') or die('Restricted access');
         xaxis: {
           tickPlacement: 'between',
           group: {
-            groups: [
-              { title: '1月', cols: 5 },
-              { title: '2月', cols: 4 },
-              { title: '3月', cols: 4 },
-              { title: '4月', cols: 5 },
-              { title: '5月', cols: 4 },
-              { title: '6月', cols: 4 },
-              { title: '7月', cols: 5 },
-              { title: '8月', cols: 4 },
-              { title: '9月', cols: 4 },
-              { title: '10月', cols: 5 },
-              { title: '11月', cols: 4 },
-              { title: '12月', cols: 4 },
-            ]
+            groups: getNumWeeksByMonth()
           },
         }
       },
