@@ -500,6 +500,7 @@ class MemberPortalController extends JControllerLegacy
 			$course_values = [];
 			foreach($rows as $idx => $row) {
 				if ($idx == 0) continue;  // Skip header
+				if (empty($row[0])) continue; // Skip invalid member code
 
 				$member_code = $row[0];
 				$name = $row[1];
