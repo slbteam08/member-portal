@@ -53,8 +53,9 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			$this->latest_month_num = $date_obj->format("n");
 		}
 		$this->latest_date = $model->getLatestUploadDate();
-		$this->num_weeks = $model->getNumWeeks($year);
 		$this->cell_schedule = $model->getCellSchedule($year);
+		//$this->num_weeks = $model->getNumWeeks($year);
+		$this->num_weeks = count($this->cell_schedule);
 		$this->info = $model->getMemberInfo($member_code);
 		$this->attd_ceremony_dates = $model->getAttendanceCeremony($member_code, $year);
 		$this->attd_cell_dates = $model->getAttendanceCell($member_code, $year);

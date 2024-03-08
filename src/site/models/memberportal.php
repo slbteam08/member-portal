@@ -53,12 +53,13 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select([
                 'date', 
+                "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
-                "WEEKOFYEAR(date + INTERVAL 2 DAY) as week_of_year"
+                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ])
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
             ->where("member_code = " . $db->quote($member_code))
-            ->where("YEAR(date) = " . $year);
+            ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year);
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
@@ -74,7 +75,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query->select([
                 'date', 
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
-                "WEEKOFYEAR(date + INTERVAL 2 DAY) as week_of_year"
+                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ])
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
             ->where("member_code = " . $db->quote($member_code))
@@ -111,13 +112,14 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select([
                 'date', 
-                "YEARWEEK(date + INTERVAL 1 DAY) as year_week", 
-                "WEEKOFYEAR(date + INTERVAL 1 DAY) as week_of_year",
+                "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
             ])
             ->from($db->quoteName('#__memberportal_attendance_cell'))
             ->where("member_code = " . $db->quote($member_code))
-            ->where("YEAR(date) = " . $year);
+            ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year);
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
@@ -132,8 +134,8 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select([
                 'date', 
-                "YEARWEEK(date + INTERVAL 1 DAY) as year_week", 
-                "WEEKOFYEAR(date + INTERVAL 1 DAY) as week_of_year",
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
             ])
             ->from($db->quoteName('#__memberportal_attendance_cell'))
