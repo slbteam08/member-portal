@@ -222,13 +222,14 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return $rows;
     }
 
-    public function getLatestDataMonth()
+    public function getLatestDataDate()
     {
+        // Latest week start of data
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
         $query->select([
-                "max(date) as latest_date"
+                "max(date) - INTERVAL DAYOFWEEK(date) % 7 DAY as latest_date"
             ])
             ->from($db->quoteName('#__memberportal_attendance_cell'));
 

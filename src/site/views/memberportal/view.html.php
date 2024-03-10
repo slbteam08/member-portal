@@ -52,13 +52,13 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 
 		$model = $this->getModel();
 		
-		$this->latest_month_val = $model->getLatestDataMonth();
-		if (is_null($this->latest_month_val)) {
+		$this->latest_data_date = $model->getLatestDataDate();
+		if (is_null($this->latest_data_date)) {
 			$this->latest_month = "";
 			$this->latest_week = date("W");
 			$this->latest_month_num = date("n");
 		} else {
-			$date_obj = \DateTime::createFromFormat("Y-m-d", $this->latest_month_val);
+			$date_obj = \DateTime::createFromFormat("Y-m-d", $this->latest_data_date);
 			$this->latest_month = $date_obj->format("Y 年 n 月");
 			$this->latest_week = $date_obj->format("W");
 			$this->latest_month_num = $date_obj->format("n");
@@ -94,6 +94,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 
 			$this->week_of_year_mapping[$saturday] = $key + 1;
 		}
+		$this->latest_week = $this->week_of_year_mapping[$this->latest_data_date];
 
 		// Attendance code
 		$ceremony_present = 6;
