@@ -183,27 +183,32 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 		$this->excel_post_mapping = [
 			"核心組員" => "核心",
 			"組長" => "組長",
-			"招待員" => "招待員",
-			"崇拜祈禱服事隊" => "禱告服事隊",
+			"招待" => "招待員",
+			"禱告服事隊" => "禱告服事隊",
 			"伴唱" => "敬拜隊",
 			"歌詠詩班" => "歌詠詩班",
 			"迦勒牧區" => "迦勒牧區",
 			"天韻詩班" => "天韻詩班",
-			"司庫" => "司庫<br>(數奉獻)",
+			"司庫(數奉獻)" => "司庫<br>(數奉獻)",
 			"實習區長" => "區長",
 			"常委會成員" => "常委會成員",
 			"主領" => "敬拜隊<br>(領敬拜)",
 			"音控" => "音控",
 			"司琴" => "敬拜隊",
 			"ppt" => "字幕員",
+			"區牧" => "區牧",
 			"區長" => "區長",
+			"組長" => "組長",
 			"結他" => "敬拜隊",
 			"鼓手" => "敬拜隊",
 			"bass" => "敬拜隊",
 			"敬拜隊" => "敬拜隊",
+			"敬拜隊(領敬拜)" => "敬拜隊<br>(領敬拜)",
+			"敬拜隊(少牧)" => "敬拜隊<br>(少年)",
 			"執事會成員" => "執事會成員",
 			"實習區牧" => "區牧",
 			"詩班員" => "歌詠詩班",
+			"少牧導師" => "少牧導師",
 		];
 		$this->post_data = [];
 		foreach($this->post_mapping as $post => $prefix) {
@@ -214,6 +219,8 @@ class MemberPortalViewMemberPortal extends JViewLegacy
 			if (array_key_exists($excel_post, $this->excel_post_mapping)) {
 				$post = $this->excel_post_mapping[$excel_post];
 				$this->post_data[$post][1] = 1; // 1 to switch on
+			} else if(array_key_exists($excel_post, $this->post_mapping)) {
+				$this->post_data[$excel_post][1] = 1; // 1 to switch on
 			}
 		}
 
