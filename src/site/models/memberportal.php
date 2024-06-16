@@ -7,7 +7,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 {
     public function getNumWeeks($year)
     {
-        $date = new DateTime;
+        $date = new DateTime();
         $date->setISODate($year, 53);
         return ($date->format("W") === "53" ? 53 : 52);
     }
@@ -52,9 +52,9 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query = $db->getQuery(true);
 
         $query->select([
-                'date', 
+                'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ])
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
@@ -73,8 +73,8 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query = $db->getQuery(true);
 
         $query->select([
-                'date', 
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                'date',
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ])
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
@@ -111,9 +111,9 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query = $db->getQuery(true);
 
         $query->select([
-                'date', 
+                'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
             ])
@@ -133,8 +133,8 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query = $db->getQuery(true);
 
         $query->select([
-                'date', 
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week", 
+                'date',
+                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
             ])

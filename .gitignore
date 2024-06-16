@@ -53,3 +53,6 @@ vendor/
 
 # Custom folders
 tmp/
+
+# PHP-CS-Fixer
+.php-cs-fixer.cache

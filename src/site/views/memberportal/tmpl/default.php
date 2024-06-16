@@ -296,7 +296,7 @@ defined('_JEXEC') or die('Restricted access');
     var series = [
       <?php
       foreach ($this->attd_ceremony_series as $key => $value) {
-        echo "{x: '" . $key . "', y: " . $value . "},";
+          echo "{x: '" . $key . "', y: " . $value . "},";
       }
       ?>
     ];
@@ -307,7 +307,7 @@ defined('_JEXEC') or die('Restricted access');
     var series = [
       <?php
       foreach ($this->attd_cell_series as $key => $value) {
-        echo "{x: '" . $key . "', y: " . $value . "},";
+          echo "{x: '" . $key . "', y: " . $value . "},";
       }
       ?>
     ];
@@ -318,7 +318,7 @@ defined('_JEXEC') or die('Restricted access');
     var series = [
       <?php
       foreach ($this->offering_series as $key => $value) {
-        echo "{x: '" . $key . "月', y: " . $value . "},";
+          echo "{x: '" . $key . "月', y: " . $value . "},";
       }
       ?>
     ];
@@ -329,7 +329,7 @@ defined('_JEXEC') or die('Restricted access');
     var months = [
       <?php
       foreach ($this->num_weeks_by_month as $key => $value) {
-        echo "{ title: '" . $key . "月', cols: " . $value . "},";
+          echo "{ title: '" . $key . "月', cols: " . $value . "},";
       }
       ?>
     ];
@@ -369,9 +369,15 @@ defined('_JEXEC') or die('Restricted access');
       <div class="year-select-container">
         顯示數據年份：
         <select class="year-select" name="year" id="year" onchange="onYearChanged()">
-          <option value="2024" <?php if ($this->year==2024) { echo "selected"; } ?>>2024</option>
-          <option value="2023" <?php if ($this->year==2023) { echo "selected"; } ?>>2023</option>
-          <option value="2022" <?php if ($this->year==2022) { echo "selected"; } ?>>2022</option>
+          <option value="2024" <?php if ($this->year==2024) {
+          echo "selected";
+      } ?>>2024</option>
+          <option value="2023" <?php if ($this->year==2023) {
+          echo "selected";
+      } ?>>2023</option>
+          <option value="2022" <?php if ($this->year==2022) {
+          echo "selected";
+      } ?>>2022</option>
         </select>
       </div>
     </div>
@@ -440,14 +446,13 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-12 col-sm-7 info-box">
       <div class="col-12 row info-post">
         <?php
-          foreach($this->post_data as $post => $post_row) {
-            $svg = $post_row[0];
-            if ($post_row[1] == 0) {
-              $greyout_class = 'class="greyout"';
-            } else {
-              $greyout_class = "";
-            }
-        ?>
+          foreach ($this->post_data as $post => $post_row) {
+              $svg = $post_row[0];
+              if ($post_row[1] == 0) {
+                  $greyout_class = 'class="greyout"';
+              } else {
+                  $greyout_class = "";
+              } ?>
           <div class="col-4 col-sm-2">
             <img src="<?php echo $this->images_path . "/" . $svg; ?>" <?php echo $greyout_class; ?> />
             <p><?php echo $post; ?></p>
@@ -478,18 +483,17 @@ defined('_JEXEC') or die('Restricted access');
     <div class="col-12 info-box">
       <div class="col-12 info-course">
       <?php
-        foreach($this->course_structure as $category) {
-      ?>
+        foreach ($this->course_structure as $category) {
+            ?>
         <div class="course row">
           <div class="course-name col-3 <?php echo $category["css_classes"]; ?>"><?php echo $category["category"]; ?></div>
           <div class="course-group col-9 col-md-8">
           <?php
-            foreach($category["courses"] as $course) {
-          ?>
+            foreach ($category["courses"] as $course) {
+                ?>
             <div class="course-name course-<?php echo $this->course_status[$course]; ?>"><?php echo $course; ?></div>
           <?php
-            }
-          ?>
+            } ?>
           </div>
         </div>
       <?php
