@@ -51,12 +51,14 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year);
@@ -72,11 +74,13 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date',
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_attendance_ceremony'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("date >= " . $db->quote($start))
@@ -93,9 +97,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'year', 'week', 'week_start'
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_cell_schedule'))
             ->where("year = " . $year);
 
@@ -110,13 +116,15 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_attendance_cell'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year);
@@ -132,12 +140,14 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date',
                 "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
                 "event_type",
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_attendance_cell'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("date >= " . $db->quote($start))
@@ -154,9 +164,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date', 'MONTH(date) as month'
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_offerings'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("YEAR(date) = " . $year);
@@ -172,9 +184,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'date', 'MONTH(date) as month'
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_offerings'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("date >= " . $db->quote($start))
@@ -191,9 +205,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'DISTINCT post'
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_serving_posts'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("end_date = '0000-00-00'");
@@ -209,9 +225,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 'DISTINCT course'
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_courses'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("status = '完成'");
@@ -228,9 +246,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 "max(date) - INTERVAL DAYOFWEEK(date) % 7 DAY as latest_date"
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_attendance_cell'));
 
         $db->setQuery($query);
@@ -248,9 +268,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select([
+        $query->select(
+            [
                 "DATE(CONVERT_TZ(uploaded, '+00:00', '+08:00')) as latest_date"
-            ])
+            ]
+        )
             ->from($db->quoteName('#__memberportal_uploaded_files'))
             ->order('id desc')
             ->setLimit('1');

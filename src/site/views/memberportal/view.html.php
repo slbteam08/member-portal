@@ -9,7 +9,7 @@ use Joomla\CMS\Uri\Uri;
 /**
  * HTML View class for the MemberPortal Component
  *
- * @since  0.0.1
+ * @since 0.0.1
  */
 class MemberPortalViewMemberPortal extends JViewLegacy
 {
@@ -28,9 +28,9 @@ class MemberPortalViewMemberPortal extends JViewLegacy
     /**
      * Display the Member Portal view
      *
-     * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+     * @param string $tpl The name of the template file to parse; automatically searches through the template paths.
      *
-     * @return  void
+     * @return void
      */
     public function display($tpl = null)
     {
@@ -270,52 +270,52 @@ class MemberPortalViewMemberPortal extends JViewLegacy
                 ],
             ],
             // [
-            // 	"category" => "基本組員成長系列 - 2",
-            // 	"css_classes" => "course-4",
-            // 	"courses" => [
-            // 		"基督生平1-6冊",
-            // 		"摩西五經1-2冊",
-            // 		"保羅生平1-3冊",
-            // 		"百萬領袖1-6冊",
-            // 		"靈命塑造營",
-            // 	],
+            //     "category" => "基本組員成長系列 - 2",
+            //     "css_classes" => "course-4",
+            //     "courses" => [
+            //         "基督生平1-6冊",
+            //         "摩西五經1-2冊",
+            //         "保羅生平1-3冊",
+            //         "百萬領袖1-6冊",
+            //         "靈命塑造營",
+            //     ],
             // ],
             // [
-            // 	"category" => "人生歷程系列",
-            // 	"css_classes" => "course-5",
-            // 	"courses" => [
-            // 		"生死教育",
-            // 		"啟發家長-兒童",
-            // 		"啟發家長-少年",
-            // 		"從雅歌看婚姻與愛情",
-            // 		"好爸爸學堂",
-            // 		"輕輕鬆鬆談管教",
-            // 	],
+            //     "category" => "人生歷程系列",
+            //     "css_classes" => "course-5",
+            //     "courses" => [
+            //         "生死教育",
+            //         "啟發家長-兒童",
+            //         "啟發家長-少年",
+            //         "從雅歌看婚姻與愛情",
+            //         "好爸爸學堂",
+            //         "輕輕鬆鬆談管教",
+            //     ],
             // ],
             // [
-            // 	"category" => "單卷聖經系列",
-            // 	"css_classes" => "course-6",
-            // 	"courses" => [
-            // 		"雅各書",
-            // 		"士師記",
-            // 		"彼得前後書",
-            // 		"路得記",
-            // 		"約翰一二三書",
-            // 		"傳道書",
-            // 		"箴言-智在必得",
-            // 		"希伯來書",
-            // 		"聖經中的男人",
-            // 		"聖經中的女人",
-            // 		"啟示錄",
-            // 	],
+            //     "category" => "單卷聖經系列",
+            //     "css_classes" => "course-6",
+            //     "courses" => [
+            //         "雅各書",
+            //         "士師記",
+            //         "彼得前後書",
+            //         "路得記",
+            //         "約翰一二三書",
+            //         "傳道書",
+            //         "箴言-智在必得",
+            //         "希伯來書",
+            //         "聖經中的男人",
+            //         "聖經中的女人",
+            //         "啟示錄",
+            //     ],
             // ],
             // [
-            // 	"category" => "事奉系列",
-            // 	"css_classes" => "course-7 white-font",
-            // 	"courses" => [
-            // 		"核心組員訓練班",
-            // 		"組長訓練班",
-            // 	],
+            //     "category" => "事奉系列",
+            //     "css_classes" => "course-7 white-font",
+            //     "courses" => [
+            //         "核心組員訓練班",
+            //         "組長訓練班",
+            //     ],
             // ],
         ];
         $this->course_status = [

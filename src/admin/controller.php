@@ -28,12 +28,15 @@ class MemberPortalController extends JControllerLegacy
         $query = $db->getQuery(true);
 
         $uploaded_file_values = [
-            implode(", ", [
+            implode(
+                ", ",
+                [
                 $db->quote($user),
                 $db->quote($uploaded_file["orig_file_name"]),
                 $db->quote($uploaded_file["saved_file_name"]),
                 $db->quote($uploaded_file["import_result"]),
-            ])
+                ]
+            )
         ];
 
         $columns = array('uploaded_by', 'orig_file_name', 'saved_file_name', 'import_result');
@@ -175,14 +178,17 @@ class MemberPortalController extends JControllerLegacy
             // Insert member attributes
             $member_attrs_values = [];
             foreach ($member_attrs as $attrs) {
-                $member_attrs_values[] = implode(', ', [
+                $member_attrs_values[] = implode(
+                    ', ',
+                    [
                     $db->quote($attrs[0]),
                     $db->quote($attrs[1]),
                     $db->quote($attrs[2]),
                     $db->quote($attrs[3]),
                     $db->quote($attrs[4]),
                     $db->quote($attrs[5]),
-                ]);
+                    ]
+                );
             }
 
             $query = $db->getQuery(true);
@@ -260,9 +266,12 @@ class MemberPortalController extends JControllerLegacy
                 $cell_group_name = $db->quote($row[3]);
                 $event_type = $db->quote($row[4]);
 
-                $attendance_cell_values[] = implode(', ', [
+                $attendance_cell_values[] = implode(
+                    ', ',
+                    [
                     $date, $member_code, $visitor_name, $cell_group_name, $event_type
-                ]);
+                    ]
+                );
             }
             $attendance_cell_values = array_unique($attendance_cell_values);
 
@@ -324,9 +333,12 @@ class MemberPortalController extends JControllerLegacy
             $offering_values = [];
             foreach ($offering_members as $member_code => $member_dates) {
                 foreach ($member_dates as $date => $num_offerings) {
-                    $offering_values[] = implode(', ', [
+                    $offering_values[] = implode(
+                        ', ',
+                        [
                         $db->quote($date), $db->quote($member_code), $num_offerings
-                    ]);
+                        ]
+                    );
                 }
             }
             $offering_values = array_unique($offering_values);
@@ -391,9 +403,12 @@ class MemberPortalController extends JControllerLegacy
             $offering_values = [];
             foreach ($offering_members as $member_code => $member_dates) {
                 foreach ($member_dates as $date => $num_offerings) {
-                    $offering_values[] = implode(', ', [
+                    $offering_values[] = implode(
+                        ', ',
+                        [
                         $db->quote($date), $db->quote($member_code), $num_offerings
-                    ]);
+                        ]
+                    );
                 }
             }
             $offering_values = array_unique($offering_values);
@@ -486,13 +501,16 @@ class MemberPortalController extends JControllerLegacy
                 $start = $row[3];
                 $end = $row[4];
 
-                $post_values[] = implode(', ', [
+                $post_values[] = implode(
+                    ', ',
+                    [
                     $db->quote($member_code),
                     $db->quote($name),
                     $db->quote($post),
                     $db->quote($start),
                     $db->quote($end)
-                ]);
+                    ]
+                );
             }
 
             $query = $db->getQuery(true);
@@ -533,14 +551,17 @@ class MemberPortalController extends JControllerLegacy
                 $end = $row[4];
                 $status = $row[5];
 
-                $course_values[] = implode(', ', [
+                $course_values[] = implode(
+                    ', ',
+                    [
                     $db->quote($member_code),
                     $db->quote($name),
                     $db->quote($course),
                     $db->quote($start),
                     $db->quote($end),
                     $db->quote($status)
-                ]);
+                    ]
+                );
             }
 
             $query = $db->getQuery(true);

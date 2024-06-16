@@ -8,7 +8,7 @@ class MemberPortalModelUploadedFiles extends JModelLegacy
     /**
      * Method to build an SQL query to load the list data.
      *
-     * @return      string  An SQL query
+     * @return string  An SQL query
      */
     protected function getUploadedFiles()
     {
@@ -18,7 +18,7 @@ class MemberPortalModelUploadedFiles extends JModelLegacy
 
         // Create the base select statement.
         $query->select('*')
-                ->from($db->quoteName('#__memberportal_uploaded_files'));
+            ->from($db->quoteName('#__memberportal_uploaded_files'));
 
         return $query;
     }

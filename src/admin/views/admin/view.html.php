@@ -6,22 +6,22 @@ defined('_JEXEC') or die('Restricted access');
 /**
  * MemberPortal View
  *
- * @since  0.0.1
+ * @since 0.0.1
  */
 class MemberPortalViewAdmin extends JViewLegacy
 {
     /**
      * Display the Member Portal view
      *
-     * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+     * @param string $tpl The name of the template file to parse; automatically searches through the template paths.
      *
-     * @return  void
+     * @return void
      */
     public function display($tpl = null)
     {
         // Get data from the model
-        $this->items		= $this->get('Items');
-        $this->pagination	= $this->get('Pagination');
+        $this->items        = $this->get('Items');
+        $this->pagination    = $this->get('Pagination');
 
         // Check for errors.
         if (count($errors = $this->get('Errors'))) {
