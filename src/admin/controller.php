@@ -117,21 +117,30 @@ class MemberPortalController extends JControllerLegacy
             // Cell Groups
             ///////////////////////////////////////////////////////////////////////
 
+            $sheet = $spreadsheet->getSheetByName("小組架構");
+            $rows = $sheet->toArray();
+
             // Truncate cell groups table
             $db->truncateTable('#__memberportal_cell_groups');
 
             // Insert cell groups
-            $cell_groups = array_unique($cell_groups);
-            // print_r($cell_groups);
-            // exit();
-
             $group_values = [];
-            foreach ($cell_groups as $cell) {
-                $group_values[] = $db->quote($cell);
+            $spaces = array(" ", "　");
+            foreach ($rows as $row) {
+                $group_values[] = implode(
+                    ', ',
+                    [
+                        $db->quote(strtoupper(trim(str_replace($spaces, "", $row[0])))),
+                        $db->quote(trim($row[1])),
+                        $db->quote(trim($row[2])),
+                        $db->quote(trim($row[3])),
+                        $db->quote(trim($row[4])),
+                    ]
+                );
             }
 
             $query = $db->getQuery(true);
-            $columns = array('name');
+            $columns = array('name', 'district', 'zone', 'start_date', 'end_date');
             $query
                 ->insert($db->quoteName('#__memberportal_cell_groups'))
                 ->columns($db->quoteName($columns))
