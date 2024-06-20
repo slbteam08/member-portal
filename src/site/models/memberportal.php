@@ -286,4 +286,60 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             return "";
         }
     }
+
+    public function getPastorReportData($year, $district, $zone, $cell, $attendance_type)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        // Filter by the most granular level
+        if ($cell != "") {
+            $filter = "g.name = " . $db->quote($cell);
+        } elseif ($zone != "") {
+            $filter = "g.zone = " . $db->quote($zone);
+        } elseif ($district != "") {
+            $filter = "g.district = " . $db->quote($district);
+        } else {
+            $filter = "";
+        }
+
+        $query->select(
+            [
+                "m.name_chi",
+                "m.member_code",
+                "g.name as cell",
+                "g.zone",
+                "g.district",
+                "date",
+                "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
+            ]
+        )
+        ->from($db->quoteName('#__memberportal_cell_groups', 'g'))
+        ->join(
+            'INNER',
+            $db->quoteName('#__memberportal_member_attrs', 't')
+                . ' ON ' . $db->quoteName('t.cell_group_name') . ' = ' . $db->quoteName('g.name')
+        )
+        ->join(
+            'INNER',
+            $db->quoteName('#__memberportal_members', 'm')
+                . ' ON ' . $db->quoteName('m.member_code') . ' = ' . $db->quoteName('t.member_code')
+        )
+        ->join(
+            'INNER',
+            $db->quoteName('#__memberportal_attendance_'.$attendance_type, 'a')
+                . ' ON ' . $db->quoteName('a.member_code') . ' = ' . $db->quoteName('m.member_code')
+        )
+        ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year)
+        ->order('district asc, zone asc, cell asc, member_code asc, date asc');
+
+        if ($filter != "") {
+            $query->where($filter);
+        }
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
 }
