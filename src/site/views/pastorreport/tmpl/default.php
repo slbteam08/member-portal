@@ -546,27 +546,6 @@ var cellmember = new Vue({
   methods: {
     handleItemChange(event) {
       updateChart();
-      // switch (event.target.value) {
-      //   case '所有組員':
-      //     switch (cellgroup.selectedOption) {
-      //       case '展翹組':
-      //         //cellmember.myOptionsArray = ["所有組員","陸展翹", "李登峰","黃國森","鍾熾威","關俊昇","陳振翔","梁廸麟","周民生","司徒澤斌","袁萃豐","文家浩","林靖釗","高澤昕"];
-      //         // pastoral_chart.series = gary;
-      //         // window.open("cellmember.html?name="+event.target.value);
-      //         break;
-
-      //       default:
-      //         // cellmember.myOptionsArray = ["所有小組", "宗Chan組", "樂勤組", "兆倫組", "敬宗組"];
-      //         // pastoral_chart.series = jone;
-      //     }
-      //     break;
-      //   default:
-      //     // window.open("cellmember.html?name="+event.target.value);
-      //     var some_url = "cellmember.html?name=" + event.target.value;
-      //     if (!window.open(some_url)) {
-      //       window.location.href = some_url;
-      //     }
-      // }
     }
   }
 })

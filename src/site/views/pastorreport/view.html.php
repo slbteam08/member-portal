@@ -127,8 +127,22 @@ class MemberPortalViewPastorReport extends JViewLegacy
         $zone = "";
         $district = "";
 
+        if (strpos($this->info->cell_role, "主任牧師") !== false) {
+            // No filters
+        } elseif (strpos($this->info->cell_role, "區牧") !== false) {
+            $district = $this->info->cell_group_name;
+        } elseif (strpos($this->info->cell_role, "區長") !== false) {
+            $zone = $this->info->cell_group_name;
+        } elseif (strpos($this->info->cell_role, "組長") !== false) {
+            $cell = $this->info->cell_group_name;
+        } else {
+            $cell = "Invalid";
+            $zone = "Invalid";
+            $district = "Invalid";
+        }
+
         // $cell = "偉豪組";
-        $zone = "永賢區";
+        // $zone = "永賢區";
         // $district = "男士牧區";
 
         $this->ceremony_attendance = $this->buildData($model->getPastorReportData($year, $district, $zone, $cell, "ceremony"));
