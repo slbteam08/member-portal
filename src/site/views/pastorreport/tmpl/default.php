@@ -228,12 +228,17 @@ function backToSummary() {
         </select>
       </div>
 
-      <div id="cellmember" class="selectmenu">組員
-        <select @change="handleItemChange($event)" name="selectCell" v-model="selectedOption" :disabled="disabled">
-          <option v-for="(item , index) in myOptionsArray" v-bind:key="index" :selected="index == 1">
-            {{item}}
-          </option>
-        </select>
+      <div id="cellmember" class="selectmenu">
+        <div class="selectmenu">組員
+          <select @change="handleItemChange($event)" name="selectCell" v-model="selectedOption" :disabled="disabled">
+            <option v-for="(item , index) in myOptionsArray" v-bind:key="index" :selected="index == 1">
+              {{item}}
+            </option>
+          </select>
+        </div>
+        <div v-if="displayLink" class="selectmenu">
+          <a id="memberLink" target="member_details" :href="detailsLink">查看組員資料</a>
+        </div>
       </div>
     </div>
 
@@ -316,7 +321,7 @@ var data = {}
                       $member_prefix = $cell_prefix . "['members']['" . $member_name . "']";
                       echo $member_prefix . " = {\n"
               . "  'series': [" . implode(", ", $member_data["series"]) . "],\n"
-              . "  'member_code': " . $member_data["member_code"] . ",\n"
+              . "  'member_code': '" . $member_data["member_code"] . "',\n"
               . "};\n";
                   }
               }
@@ -526,6 +531,17 @@ var cellmember = new Vue({
   computed: {
     disabled: function() {
       return this.myOptionsArray.length <= 2;
+    },
+    displayLink: function() {
+      return this.selectedOption != "所有組員";
+    },
+    detailsLink: function() {
+      var member_code = data[attendance_type][pastor_menu.selectedOption]["zones"][district_menu.selectedOption]["cells"][cellgroup.selectedOption]["members"][this.selectedOption]["member_code"];
+      var href = new URL(window.location.href);
+      href.searchParams.set("view", "member-portal");
+      href.searchParams.set("member_code", member_code);
+
+      return href.toString();
     }
   },
   watch: {
