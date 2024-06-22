@@ -200,7 +200,7 @@ function backToSummary() {
 
     <div id="menu">
       <div id="year" class="selectmenu">年份
-        <select @change="handleItemChange($event)" name="selectYear">
+        <select @change="handleItemChange($event)" name="selectYear" v-model="selectedOption">
           <option v-for="(item , index) in myOptionsArray" v-bind:key="index">
             {{item}}
           </option>
@@ -258,16 +258,19 @@ function backToSummary() {
 var year_menu = new Vue({
   el: '#year',
   data: {
-    myOptionsArray: ["2024", "2023", "2022"]
+    myOptionsArray: [2024, 2023, 2022],
+    selectedOption: <?php echo $this->year; ?>,
   },
   mounted() {
     //this.myOptionsArray = this.myOptionsArray.sort();
   },
   methods: {
     handleItemChange(event) {
-      //if(e.target.options.selectedIndex > -1) {
-      console.log(event.target.value)
-      //}
+      var year = event.target.value;
+
+      params = new URLSearchParams(window.location.search);
+      params.set("year", year);
+      window.location.search = params.toString();
     }
   }
 })
