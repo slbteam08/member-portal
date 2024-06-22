@@ -118,7 +118,8 @@ class MemberPortalViewPastorReport extends JViewLegacy
 
         // Date to week of year mapping
         $this->week_of_year_mapping = [];
-        foreach ($this->getSaturdays($year) as $key => $saturday) {
+        $this->week_starts = $this->getSaturdays($year);
+        foreach ($this->week_starts as $key => $saturday) {
             $this->week_of_year_mapping[$saturday] = $key + 1;
         }
 
