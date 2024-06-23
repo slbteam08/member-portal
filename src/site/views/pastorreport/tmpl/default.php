@@ -577,8 +577,13 @@ var pastoral_chart = new Vue({
   data: {
     series: getSeries(data["ceremony"]),
     chartOptions: {
-      colors: ['#A60FD3', '#B959D6', '#FC34C6', '#FF9300', '#2C6417', '#E593CF', "#94D652", "#678052", "#6BA3B9",
-        "#00E8FF", "#91002a", "#0e1eec", "#41fca3"
+      // colors: [ // Gradient order
+      //   "#DD003C","#E45240","#FA754A","#F39C38","#F7C244","#FDEA5F","#D1DA59","#97C05C","#67AC5B","#3D9488",
+      //   "#0E1EEC","#4060FF","#4396EC","#77C7FF","#4DBAD1","#D916D2","#9036AA","#B959D6","#91002A","#74564A",
+      // ],
+      colors: [ // Interlaced order
+        "#DD003C","#0E1EEC","#E45240","#4060FF","#FA754A","#4396EC","#F39C38","#77C7FF","#F7C244","#4DBAD1",
+        "#FDEA5F","#D916D2","#D1DA59","#9036AA","#97C05C","#B959D6","#67AC5B","#91002A","#3D9488","#74564A",
       ],
       chart: {
         type: 'bar',
