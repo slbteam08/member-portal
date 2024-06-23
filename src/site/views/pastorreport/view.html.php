@@ -25,6 +25,42 @@ class MemberPortalViewPastorReport extends JViewLegacy
         return $saturdays;
     }
 
+    public function buildTree($rows)
+    {
+        $data = [];
+
+        foreach ($rows as $row) {
+            if (!array_key_exists($row->district, $data)) {
+                $data[$row->district] = [
+                    "zones" => [],
+                ];
+            }
+            $district =& $data[$row->district];
+
+            if (!array_key_exists($row->zone, $district["zones"])) {
+                $district["zones"][$row->zone] = [
+                    "cells" => [],
+                ];
+            }
+            $zone =& $district["zones"][$row->zone];
+
+            if (!array_key_exists($row->cell, $zone["cells"])) {
+                $zone["cells"][$row->cell] = [
+                    "members" => [],
+                ];
+            }
+            $cell =& $zone["cells"][$row->cell];
+
+            if (!array_key_exists($row->name_chi, $cell["members"])) {
+                $cell["members"][$row->name_chi] = [
+                    "member_code" => $row->member_code,
+                ];
+            }
+        }
+
+        return $data;
+    }
+
     public function buildData($rows)
     {
         // Data structure: district -> zone -> cell -> member
@@ -146,6 +182,7 @@ class MemberPortalViewPastorReport extends JViewLegacy
         // $zone = "永賢區";
         // $district = "男士牧區";
 
+        $this->cell_tree = $this->buildTree($model->getLatestCellTree($district, $zone, $cell));
         $this->ceremony_attendance = $this->buildData($model->getPastorReportData($year, $district, $zone, $cell, "ceremony"));
         $this->cell_attendance = $this->buildData($model->getPastorReportData($year, $district, $zone, $cell, "cell"));
 

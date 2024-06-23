@@ -281,7 +281,8 @@ var year_menu = new Vue({
 })
 
 // Dynamic cell group structure data
-var data = {}
+var data = {};
+var tree = {};
 
 <?php
   $datasets = [
@@ -328,6 +329,38 @@ var data = {}
           }
       }
   }
+
+  # Loop districts
+  foreach ($this->cell_tree as $district_name => $district_data) {
+      $district_prefix = "tree['" . $district_name . "']";
+      echo $district_prefix . " = {\n"
+    . "  'zones': {},\n"
+    . "};\n";
+
+      # Loop zones
+      foreach ($district_data["zones"] as $zone_name => $zone_data) {
+          $zone_prefix = $district_prefix . "['zones']['" . $zone_name . "']";
+          echo $zone_prefix . " = {\n"
+      . "  'cells': {},\n"
+      . "};\n";
+
+          # Loop cells
+          foreach ($zone_data["cells"] as $cell_name => $cell_data) {
+              $cell_prefix = $zone_prefix . "['cells']['" . $cell_name . "']";
+              echo $cell_prefix . " = {\n"
+        . "  'members': {},\n"
+        . "};\n";
+
+              # Loop members
+              foreach ($cell_data["members"] as $member_name => $member_data) {
+                  $member_prefix = $cell_prefix . "['members']['" . $member_name . "']";
+                  echo $member_prefix . " = {\n"
+          . "  'member_code': '" . $member_data["member_code"] . "',\n"
+          . "};\n";
+              }
+          }
+      }
+  }
 ?>
 
 function getSeries(data) {
@@ -351,9 +384,21 @@ function updateChart() {
 
   if (member != "所有組員") {
     var member_data = data[attendance_type][district]["zones"][zone]["cells"][cell]["members"][member];
+    if (member_data == undefined) {
+      var series = [
+        <?php
+            foreach ($this->week_starts as $saturday) {
+                echo "0";
+            }
+          ?>
+      ];
+    } else {
+      var series = member_data["series"];
+    }
+
     pastoral_chart.series = [{
       name: member,
-      data: member_data["series"]
+      data: series,
     }];
   } else if (cell != "所有小組") {
     var cell_data = data[attendance_type][district]["zones"][zone]["cells"][cell];
@@ -372,8 +417,7 @@ function updateChart() {
 var pastor_menu = new Vue({
   el: '#pastoral',
   data: {
-    // myOptionsArray: ["所有牧區", "淑芬牧區", "雪貞牧區", "Sarah牧區", "寶玉牧區", "男士牧區", "榕安牧區", "青年牧區"],
-    myOptionsArray: ["所有牧區"].concat(Object.keys(data["ceremony"])),
+    myOptionsArray: ["所有牧區"].concat(Object.keys(tree)),
     selectedOption: '所有牧區'
   },
   methods: {
@@ -381,10 +425,10 @@ var pastor_menu = new Vue({
       var district = event.target.value;
 
       if (district == '所有牧區') {
-        pastor_menu.myOptionsArray = ["所有牧區"].concat(Object.keys(data["ceremony"])),
+        pastor_menu.myOptionsArray = ["所有牧區"].concat(Object.keys(tree)),
         district_menu.myOptionsArray = ["所有分區"];
       } else {
-        var zones = data["ceremony"][district]["zones"];
+        var zones = tree[district]["zones"];
         district_menu.myOptionsArray = ["所有分區"].concat(Object.keys(zones));
       }
 
@@ -437,7 +481,7 @@ var district_menu = new Vue({
         cellgroup.myOptionsArray = ["所有小組"];
         cellgroup.selectedOption = "所有小組";
       } else {
-        var cells = data["ceremony"][district]["zones"][zone]["cells"];
+        var cells = tree[district]["zones"][zone]["cells"];
         cellgroup.myOptionsArray = ["所有小組"].concat(Object.keys(cells));
         cellgroup.selectedOption = "所有小組";
       }
@@ -512,7 +556,7 @@ var cellgroup = new Vue({
         cellmember.myOptionsArray = ["所有組員"];
         cellmember.selectedOption = "所有組員";
       } else {
-        var members = data["ceremony"][district]["zones"][zone]["cells"][cell]["members"];
+        var members = tree[district]["zones"][zone]["cells"][cell]["members"];
         cellmember.myOptionsArray = ["所有組員"].concat(Object.keys(members));
         cellmember.selectedOption = "所有組員";
       }
@@ -536,7 +580,7 @@ var cellmember = new Vue({
       return this.selectedOption != "所有組員";
     },
     detailsLink: function() {
-      var member_code = data[attendance_type][pastor_menu.selectedOption]["zones"][district_menu.selectedOption]["cells"][cellgroup.selectedOption]["members"][this.selectedOption]["member_code"];
+      var member_code = tree[pastor_menu.selectedOption]["zones"][district_menu.selectedOption]["cells"][cellgroup.selectedOption]["members"][this.selectedOption]["member_code"];
       var href = new URL(window.location.href);
       href.searchParams.set("view", "member-portal");
       href.searchParams.set("member_code", member_code);

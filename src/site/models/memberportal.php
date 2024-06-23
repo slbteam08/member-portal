@@ -287,6 +287,61 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         }
     }
 
+    public function getLatestCellTree($district, $zone, $cell)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $subQuery = $db->getQuery(true);
+
+        // Filter by the most granular level
+        if ($cell != "") {
+            $filter = "g.name = " . $db->quote($cell);
+        } elseif ($zone != "") {
+            $filter = "g.zone = " . $db->quote($zone);
+        } elseif ($district != "") {
+            $filter = "g.district = " . $db->quote($district);
+        } else {
+            $filter = "";
+        }
+
+        // Latest attribute rows per member
+        $subQuery->select(["m.name_chi", "a.*", "RANK() over (PARTITION BY member_code ORDER BY start_date desc) as attr_rank"])
+            ->from($db->quoteName('#__memberportal_members', 'm'))
+            ->join(
+                'INNER',
+                $db->quoteName('#__memberportal_member_attrs', 'a')
+                    . ' ON ' . $db->quoteName('a.member_code') . ' = ' . $db->quoteName('m.member_code')
+                    . ' AND ' . $db->quoteName('a.end_date') . ' = ' . $db->quote("0000-00-00")  // Only show active members
+            );
+
+        $query->select(
+            [
+                "t.name_chi",
+                "t.member_code",
+                "g.name as cell",
+                "g.zone",
+                "g.district",
+            ]
+        )
+        ->from($db->quoteName('#__memberportal_cell_groups', 'g'))
+        ->join(
+            'INNER',
+            "(" . $subQuery . ") AS t"
+                . ' ON ' . $db->quoteName('t.cell_group_name') . ' = ' . $db->quoteName('g.name')
+                . ' AND ' . $db->quoteName('t.attr_rank') . ' = 1'
+        )
+        ->order('district asc, zone asc, cell asc, member_code asc');;
+
+        if ($filter != "") {
+            $query->where($filter);
+        }
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
     public function getPastorReportData($year, $district, $zone, $cell, $attendance_type)
     {
         $db    = JFactory::getDbo();
