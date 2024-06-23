@@ -24,11 +24,25 @@ class MemberPortalViewMemberReport extends JViewLegacy
         $input = Factory::getApplication()->input;
 
         // Determine member code
-        $member_code = $input->get("member_code"); // Secret override
-        if (is_null($member_code)) {
-            $user = Factory::getUser();
+        $user = Factory::getUser();
+        $logged_in_member = $user->username;
+        $allow_override = [
+            "admin", 
+            "040200", // 黃偉豪
+            "040010", // 馬錦鋒
+            "040059", // 黃超明
+            "040022", // 黃超明
+            "100022", // 梁鍵文
+        ];
+        if (in_array($logged_in_member, $allow_override)) {
+            $member_code = $input->get("member_code"); // Secret override
+            if (is_null($member_code)) {
+                $member_code = $user->username;
+            } else {
+                $this->impersonate_member_code = $member_code;
+            }
+        } else {
             $member_code = $user->username;
-            // print_r($user);
         }
 
         $model = JModelLegacy::getInstance('MemberPortal', 'MemberPortalModel');

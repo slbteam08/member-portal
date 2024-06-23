@@ -132,6 +132,15 @@ p {
   margin-bottom: 8px;
 }
 
+.admin_mode_banner {
+  text-align: center;
+  background: #dc3d3d;
+  color: white;
+  font-weight: bold;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
   .user-content {
@@ -168,6 +177,14 @@ function backToSummary() {
 }
 </script>
 <div class="container-fluid user-content">
+
+  <?php if (!is_null($this->impersonate_member_code)) { ?>
+  <div class="row">
+    <div class="col-12 admin_mode_banner">
+      管理員扮演會友模式 - 崇拜編碼：<?php echo $this->impersonate_member_code; ?>
+    </div>
+  </div>
+  <?php } ?>
 
   <h3>牧養記錄</h3>
 

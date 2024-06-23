@@ -10,7 +10,25 @@ function backToSummary() {
   window.location.search = params.toString();
 }
 </script>
+<style>
+.admin_mode_banner {
+  text-align: center;
+  background: #dc3d3d;
+  color: white;
+  font-weight: bold;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+</style>
 <div class="container-fluid user-content">
+
+  <?php if (!is_null($this->impersonate_member_code)) { ?>
+  <div class="row">
+    <div class="col-12 admin_mode_banner">
+      管理員扮演會友模式 - 崇拜編碼：<?php echo $this->impersonate_member_code; ?>
+    </div>
+  </div>
+  <?php } ?>
 
   <h3>過去12個月出席及奉獻統計</h3>
 
