@@ -35,6 +35,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
     public function display($tpl = null)
     {
         $input = Factory::getApplication()->input;
+        $model = $this->getModel();
 
         // Determine member code
         $member_code = $input->get("member_code"); // Secret override
@@ -44,14 +45,40 @@ class MemberPortalViewMemberPortal extends JViewLegacy
             // print_r($user);
         }
 
+        // Pastor view
+        $view_member_code = $input->get("view_member_code"); 
+        if (!is_null($view_member_code)) {
+            // Check if logged in user has pastor view permission
+            $pastor_info = $model->getMemberInfo($member_code);
+            if (strpos($pastor_info->cell_role, "主任牧師") !== false) {
+                // No filters
+            } elseif (strpos($pastor_info->cell_role, "區牧") !== false) {
+                $district = $pastor_info->cell_group_name;
+            } elseif (strpos($pastor_info->cell_role, "區長") !== false) {
+                $zone = $pastor_info->cell_group_name;
+            } elseif (strpos($pastor_info->cell_role, "組長") !== false) {
+                $cell = $pastor_info->cell_group_name;
+            } else {
+                $cell = "Invalid";
+                $zone = "Invalid";
+                $district = "Invalid";
+            }
+            $pastor_tree = $model->getLatestCellTree($district, $zone, $cell, $view_member_code);
+            if (count($pastor_tree) > 0) {
+                $this->pastor_view_mode = true;
+                $member_code = $view_member_code;
+            } else {
+                echo  "<span style='color: red'>錯誤：沒有權限檢視該會友資料 (崇拜編碼: " . $view_member_code . ")</span>";
+                return;
+            }
+        }
+
         // Get member data
         $year = $input->get("year"); // Secret override
         if (is_null($year)) {
             $year = 2024;
         }
         $this->year = $year;
-
-        $model = $this->getModel();
 
         $this->latest_data_date = $model->getLatestDataDate();
         if (is_null($this->latest_data_date)) {

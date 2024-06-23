@@ -287,7 +287,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         }
     }
 
-    public function getLatestCellTree($district, $zone, $cell)
+    public function getLatestCellTree($district, $zone, $cell, $member_code="")
     {
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
@@ -334,6 +334,11 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         if ($filter != "") {
             $query->where($filter);
+        }
+
+        // For checking pastor permissions
+        if ($member_code != "") {
+            $query->where("t.member_code = " . $db->quote($member_code));
         }
 
         $db->setQuery($query);

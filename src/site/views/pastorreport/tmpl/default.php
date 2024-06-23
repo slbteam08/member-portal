@@ -583,7 +583,7 @@ var cellmember = new Vue({
       var member_code = tree[pastor_menu.selectedOption]["zones"][district_menu.selectedOption]["cells"][cellgroup.selectedOption]["members"][this.selectedOption]["member_code"];
       var href = new URL(window.location.href);
       href.searchParams.set("view", "member-portal");
-      href.searchParams.set("member_code", member_code);
+      href.searchParams.set("view_member_code", member_code);
 
       return href.toString();
     }

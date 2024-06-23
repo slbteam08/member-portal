@@ -170,8 +170,6 @@ p {
   background-size: 20px;
 }
 
-
-
 .info-icon img {
   width: 60%;
 }
@@ -208,6 +206,15 @@ p {
   width: 100% !important;
   position: relative;
   left: -5px;
+}
+
+.pastor_mode_banner {
+  text-align: center;
+  background: #007b52;
+  color: white;
+  font-weight: bold;
+  padding: 4px;
+  margin-bottom: 8px;
 }
 
 /* Smartphones (portrait and landscape) ----------- */
@@ -250,8 +257,6 @@ p {
   }
 
 }
-
-
 
 /* iPads (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
@@ -352,6 +357,14 @@ function goToReport() {
 </script>
 
 <div class="container-fluid user-content">
+
+  <?php if ($this->pastor_view_mode) { ?>
+  <div class="row">
+    <div class="col-12 pastor_mode_banner">
+      牧者檢視模式
+    </div>
+  </div>
+  <?php } ?>
 
   <!-- header -->
   <div class="row user-info">
