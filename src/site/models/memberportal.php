@@ -329,6 +329,8 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             'INNER',
             $db->quoteName('#__memberportal_attendance_'.$attendance_type, 'a')
                 . ' ON ' . $db->quoteName('a.member_code') . ' = ' . $db->quoteName('m.member_code')
+                . ' AND (' . $db->quoteName('t.start_date') . ' = ' . $db->quote('0000-00-00') . ' OR ' . $db->quoteName('a.date') . ' >= ' . $db->quoteName('t.start_date') . ')'
+                . ' AND (' . $db->quoteName('t.end_date') . ' = ' . $db->quote('0000-00-00') . ' OR ' . $db->quoteName('a.date') . ' < ' . $db->quoteName('t.end_date') . ')'
         )
         ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year)
         ->order('district asc, zone asc, cell asc, member_code asc, date asc');
