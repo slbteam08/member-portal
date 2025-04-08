@@ -280,7 +280,7 @@ function backToSummary() {
 var year_menu = new Vue({
   el: '#year',
   data: {
-    myOptionsArray: [2024, 2023, 2022],
+    myOptionsArray: [2025, 2024, 2023, 2022],
     selectedOption: <?php echo $this->year; ?>,
   },
   mounted() {

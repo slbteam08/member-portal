@@ -222,6 +222,8 @@ class MemberPortalController extends JControllerLegacy
             // Truncate member attributes table
             $db->truncateTable('#__memberportal_attendance_ceremony');
 
+            print_r("<p>Truncated ceremony attendance rows");
+
             // Insert ceremony attendance
             $attendance_ceremony_values = [];
             foreach ($rows as $idx => $row) {
@@ -231,6 +233,7 @@ class MemberPortalController extends JControllerLegacy
                 $attendance_ceremony_values[] = $db->quote($row[0]) . ', ' . $db->quote($row[1]);
             }
             $attendance_ceremony_values = array_unique($attendance_ceremony_values);
+            print_r("<p>Unique ceremony attendance rows: " . count($attendance_ceremony_values));
 
             $query = $db->getQuery(true);
             $columns = array('date', 'member_code');

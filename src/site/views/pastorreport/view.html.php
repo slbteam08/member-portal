@@ -162,7 +162,7 @@ class MemberPortalViewPastorReport extends JViewLegacy
         // Get year
         $year = $input->get("year"); // Secret override
         if (is_null($year)) {
-            $year = 2024;
+            $year = 2025;
         }
         $this->year = $year;
 
