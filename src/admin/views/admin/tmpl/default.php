@@ -23,6 +23,15 @@ defined('_JEXEC') or die('Restricted Access');
                     <input type="file" name="upload_file"></input>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="dry_run" value="1"> Dry Run Mode (no database changes will be made)
+                        </label>
+                    </div>
+                </td>
+            </tr>
         </tbody>
     </table>
 </form>

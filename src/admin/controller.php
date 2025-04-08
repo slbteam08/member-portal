@@ -53,6 +53,7 @@ class MemberPortalController extends JControllerLegacy
         $app = JFactory::getApplication();
         $input = $app->input;
         $file  = $input->files->get('upload_file');
+        $dryRun = $input->getBool('dry_run', false);
 
         // Save uploaded file
         // - Destination folder: /var/www/clients/client1/web1/web/administrator/components/com_memberportal/uploads
@@ -74,12 +75,16 @@ class MemberPortalController extends JControllerLegacy
         $uploaded_file = [
             "orig_file_name" => $file['name'],
             "saved_file_name" => $filename,
-            "import_result" => "Successful",
+            "import_result" => $dryRun ? "Dry Run" : "Successful",
         ];
         $user = JFactory::getUser();
         $this->addUploadedFile($user->id, $uploaded_file);
 
         try {
+            // Display dry run mode message
+            if ($dryRun) {
+                print_r("<h2>DRY RUN MODE - No database changes will be made</h2>");
+            }
 
             // Read member list
             $uploadedExcel = $dest;
@@ -121,7 +126,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
-            $db->truncateTable('#__memberportal_cell_groups');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_cell_groups');
+            }
 
             // Insert cell groups
             $group_values = [];
@@ -139,16 +146,18 @@ class MemberPortalController extends JControllerLegacy
                 );
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('name', 'district', 'zone', 'start_date', 'end_date');
-            $query
-                ->insert($db->quoteName('#__memberportal_cell_groups'))
-                ->columns($db->quoteName($columns))
-                ->values($group_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('name', 'district', 'zone', 'start_date', 'end_date');
+                $query
+                    ->insert($db->quoteName('#__memberportal_cell_groups'))
+                    ->columns($db->quoteName($columns))
+                    ->values($group_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($group_values) . " cell groups");
+            print_r("<p>Loaded " . count($group_values) . " cell groups" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -156,7 +165,9 @@ class MemberPortalController extends JControllerLegacy
             ///////////////////////////////////////////////////////////////////////
 
             // Truncate members table
-            $db->truncateTable('#__memberportal_members');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_members');
+            }
 
             // Insert members
             $members = array_unique($members, SORT_REGULAR);
@@ -165,16 +176,18 @@ class MemberPortalController extends JControllerLegacy
                 $member_values[] = $db->quote($member[0]) . ', ' . $db->quote($member[1]);
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('member_code', 'name_chi');
-            $query
-                ->insert($db->quoteName('#__memberportal_members'))
-                ->columns($db->quoteName($columns))
-                ->values($member_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('member_code', 'name_chi');
+                $query
+                    ->insert($db->quoteName('#__memberportal_members'))
+                    ->columns($db->quoteName($columns))
+                    ->values($member_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($members) . " members");
+            print_r("<p>Loaded " . count($members) . " members" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -182,7 +195,9 @@ class MemberPortalController extends JControllerLegacy
             ///////////////////////////////////////////////////////////////////////
 
             // Truncate member attributes table
-            $db->truncateTable('#__memberportal_member_attrs');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_member_attrs');
+            }
 
             // Insert member attributes
             $member_attrs_values = [];
@@ -200,16 +215,18 @@ class MemberPortalController extends JControllerLegacy
                 );
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('member_code', 'cell_group_name', 'cell_role', 'member_category', 'start_date', 'end_date');
-            $query
-                ->insert($db->quoteName('#__memberportal_member_attrs'))
-                ->columns($db->quoteName($columns))
-                ->values($member_attrs_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('member_code', 'cell_group_name', 'cell_role', 'member_category', 'start_date', 'end_date');
+                $query
+                    ->insert($db->quoteName('#__memberportal_member_attrs'))
+                    ->columns($db->quoteName($columns))
+                    ->values($member_attrs_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($member_attrs_values) . " member attribute rows");
+            print_r("<p>Loaded " . count($member_attrs_values) . " member attribute rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -220,9 +237,11 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
-            $db->truncateTable('#__memberportal_attendance_ceremony');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_attendance_ceremony');
+            }
 
-            print_r("<p>Truncated ceremony attendance rows");
+            print_r("<p>Truncated ceremony attendance rows" . ($dryRun ? " (DRY RUN)" : ""));
 
             // Insert ceremony attendance
             $attendance_ceremony_values = [];
@@ -235,16 +254,18 @@ class MemberPortalController extends JControllerLegacy
             $attendance_ceremony_values = array_unique($attendance_ceremony_values);
             print_r("<p>Unique ceremony attendance rows: " . count($attendance_ceremony_values));
 
-            $query = $db->getQuery(true);
-            $columns = array('date', 'member_code');
-            $query
-                ->insert($db->quoteName('#__memberportal_attendance_ceremony'))
-                ->columns($db->quoteName($columns))
-                ->values($attendance_ceremony_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('date', 'member_code');
+                $query
+                    ->insert($db->quoteName('#__memberportal_attendance_ceremony'))
+                    ->columns($db->quoteName($columns))
+                    ->values($attendance_ceremony_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($attendance_ceremony_values) . " ceremony attendance rows");
+            print_r("<p>Loaded " . count($attendance_ceremony_values) . " ceremony attendance rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -255,7 +276,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
-            $db->truncateTable('#__memberportal_attendance_cell');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_attendance_cell');
+            }
 
             // Insert cell attendance
             $attendance_cell_values = [];
@@ -287,16 +310,18 @@ class MemberPortalController extends JControllerLegacy
             }
             $attendance_cell_values = array_unique($attendance_cell_values);
 
-            $query = $db->getQuery(true);
-            $columns = array('date', 'member_code', 'visitor_name', 'cell_group_name', 'event_type');
-            $query
-                ->insert($db->quoteName('#__memberportal_attendance_cell'))
-                ->columns($db->quoteName($columns))
-                ->values($attendance_cell_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('date', 'member_code', 'visitor_name', 'cell_group_name', 'event_type');
+                $query
+                    ->insert($db->quoteName('#__memberportal_attendance_cell'))
+                    ->columns($db->quoteName($columns))
+                    ->values($attendance_cell_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows");
+            print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -307,7 +332,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
-            $db->truncateTable('#__memberportal_offerings');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_offerings');
+            }
 
             // Insert offerings
             $offering_members = [];
@@ -355,16 +382,18 @@ class MemberPortalController extends JControllerLegacy
             }
             $offering_values = array_unique($offering_values);
 
-            $query = $db->getQuery(true);
-            $columns = array('date', 'member_code', 'num_offerings');
-            $query
-                ->insert($db->quoteName('#__memberportal_offerings'))
-                ->columns($db->quoteName($columns))
-                ->values($offering_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('date', 'member_code', 'num_offerings');
+                $query
+                    ->insert($db->quoteName('#__memberportal_offerings'))
+                    ->columns($db->quoteName($columns))
+                    ->values($offering_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($offering_values) . " offering rows");
+            print_r("<p>Loaded " . count($offering_values) . " offering rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -426,24 +455,26 @@ class MemberPortalController extends JControllerLegacy
             $offering_values = array_unique($offering_values);
 
             // Delete months covered by v2 sheet
-            $query = $db->getQuery(true);
-            $query
-                ->delete($db->quoteName('#__memberportal_offerings'))
-                ->where($db->quoteName('date') . ' between ' . $db->quote($months[0]) . ' and '. $db->quote(end($months)));
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $query
+                    ->delete($db->quoteName('#__memberportal_offerings'))
+                    ->where($db->quoteName('date') . ' between ' . $db->quote($months[0]) . ' and '. $db->quote(end($months)));
+                $db->setQuery($query);
+                $db->execute();
 
-            // Insert rows
-            $query = $db->getQuery(true);
-            $columns = array('date', 'member_code', 'num_offerings');
-            $query
-                ->insert($db->quoteName('#__memberportal_offerings'))
-                ->columns($db->quoteName($columns))
-                ->values($offering_values);
-            $db->setQuery($query);
-            $db->execute();
+                // Insert rows
+                $query = $db->getQuery(true);
+                $columns = array('date', 'member_code', 'num_offerings');
+                $query
+                    ->insert($db->quoteName('#__memberportal_offerings'))
+                    ->columns($db->quoteName($columns))
+                    ->values($offering_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($offering_values) . " offering v2 rows");
+            print_r("<p>Loaded " . count($offering_values) . " offering v2 rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -454,7 +485,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
-            $db->truncateTable('#__memberportal_cell_schedule');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_cell_schedule');
+            }
 
             $schedule_values = [];
             foreach ($rows as $idx => $row) {
@@ -476,16 +509,18 @@ class MemberPortalController extends JControllerLegacy
                 $schedule_values[] = $year . ", " . $week . ", " . $week_start;
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('year', 'week', 'week_start');
-            $query
-                ->insert($db->quoteName('#__memberportal_cell_schedule'))
-                ->columns($db->quoteName($columns))
-                ->values($schedule_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('year', 'week', 'week_start');
+                $query
+                    ->insert($db->quoteName('#__memberportal_cell_schedule'))
+                    ->columns($db->quoteName($columns))
+                    ->values($schedule_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates");
+            print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -496,7 +531,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
-            $db->truncateTable('#__memberportal_serving_posts');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_serving_posts');
+            }
 
             $post_values = [];
             foreach ($rows as $idx => $row) {
@@ -525,16 +562,18 @@ class MemberPortalController extends JControllerLegacy
                 );
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
-            $query
-                ->insert($db->quoteName('#__memberportal_serving_posts'))
-                ->columns($db->quoteName($columns))
-                ->values($post_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
+                $query
+                    ->insert($db->quoteName('#__memberportal_serving_posts'))
+                    ->columns($db->quoteName($columns))
+                    ->values($post_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($post_values) . " serving post rows");
+            print_r("<p>Loaded " . count($post_values) . " serving post rows" . ($dryRun ? " (DRY RUN)" : ""));
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -545,7 +584,9 @@ class MemberPortalController extends JControllerLegacy
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
-            $db->truncateTable('#__memberportal_courses');
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_courses');
+            }
 
             $course_values = [];
             foreach ($rows as $idx => $row) {
@@ -576,16 +617,22 @@ class MemberPortalController extends JControllerLegacy
                 );
             }
 
-            $query = $db->getQuery(true);
-            $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
-            $query
-                ->insert($db->quoteName('#__memberportal_courses'))
-                ->columns($db->quoteName($columns))
-                ->values($course_values);
-            $db->setQuery($query);
-            $db->execute();
+            if (!$dryRun) {
+                $query = $db->getQuery(true);
+                $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
+                $query
+                    ->insert($db->quoteName('#__memberportal_courses'))
+                    ->columns($db->quoteName($columns))
+                    ->values($course_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
 
-            print_r("<p>Loaded " . count($course_values) . " course rows");
+            print_r("<p>Loaded " . count($course_values) . " course rows" . ($dryRun ? " (DRY RUN)" : ""));
+            
+            if ($dryRun) {
+                print_r("<h3>Dry run completed successfully. No database changes were made.</h3>");
+            }
         } catch (Exception $e) {
             print_r($e);
         }
