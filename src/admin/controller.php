@@ -13,6 +13,40 @@ class MemberPortalController extends JControllerLegacy
      */
     protected $default_view = 'admin';
 
+    /**
+     * Load a specific sheet from an Excel file
+     * 
+     * @param string $excelFile Path to the Excel file
+     * @param string $sheetName Name of the sheet to load
+     * @return \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet|null The worksheet or null if not found
+     */
+    private function loadSheet($excelFile, $sheetName)
+    {
+        try {
+            // Create reader with optimized settings
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            if ($reader instanceof \PhpOffice\PhpSpreadsheet\Reader\IReader) {
+                $reader->setReadDataOnly(true);
+                $reader->setReadEmptyCells(false);
+            }
+
+            // Set to load only the target sheet
+            $reader->setLoadSheetsOnly([$sheetName]);
+
+            // Load the sheet
+            $spreadsheet = $reader->load($excelFile);
+            $worksheet = $spreadsheet->getSheetByName($sheetName);
+
+            if (!$worksheet) {
+                return null;
+            }
+
+            return $worksheet;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     private function isDate($date)
     {
         if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) {
@@ -88,8 +122,10 @@ class MemberPortalController extends JControllerLegacy
 
             // Read member list
             $uploadedExcel = $dest;
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($uploadedExcel);
-            $memberSheet = $spreadsheet->getSheetByName("小組組員");
+            $memberSheet = $this->loadSheet($uploadedExcel, "小組組員");
+            if (!$memberSheet) {
+                throw new Exception("Members sheet not found");
+            }
             $rows = $memberSheet->toArray();
 
             $members = [];
@@ -122,7 +158,10 @@ class MemberPortalController extends JControllerLegacy
             // Cell Groups
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("小組架構");
+            $sheet = $this->loadSheet($uploadedExcel, "小組架構");
+            if (!$sheet) {
+                throw new Exception("Cell groups sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
@@ -233,7 +272,10 @@ class MemberPortalController extends JControllerLegacy
             // Ceremony Attendance
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("出席記錄-崇拜");
+            $sheet = $this->loadSheet($uploadedExcel, "出席記錄-崇拜");
+            if (!$sheet) {
+                throw new Exception("Ceremony attendance sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
@@ -272,7 +314,10 @@ class MemberPortalController extends JControllerLegacy
             // Cell Attendance
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("出席記錄-小組");
+            $sheet = $this->loadSheet($uploadedExcel, "出席記錄-小組");
+            if (!$sheet) {
+                throw new Exception("Cell attendance sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
@@ -328,7 +373,10 @@ class MemberPortalController extends JControllerLegacy
             // Offerings
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("奉獻記錄");
+            $sheet = $this->loadSheet($uploadedExcel, "奉獻記錄");
+            if (!$sheet) {
+                throw new Exception("Offerings sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate member attributes table
@@ -400,7 +448,10 @@ class MemberPortalController extends JControllerLegacy
             // Offerings v2
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("奉獻記錄v2");
+            $sheet = $this->loadSheet($uploadedExcel, "奉獻記錄v2");
+            if (!$sheet) {
+                throw new Exception("Offerings v2 sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Insert offerings
@@ -481,7 +532,10 @@ class MemberPortalController extends JControllerLegacy
             // Cell Group Schedule
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("小組日程");
+            $sheet = $this->loadSheet($uploadedExcel, "小組日程");
+            if (!$sheet) {
+                throw new Exception("Cell schedule sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
@@ -527,7 +581,10 @@ class MemberPortalController extends JControllerLegacy
             // Serving Posts
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("組員事奉崗位");
+            $sheet = $this->loadSheet($uploadedExcel, "組員事奉崗位");
+            if (!$sheet) {
+                throw new Exception("Serving posts sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
@@ -580,7 +637,10 @@ class MemberPortalController extends JControllerLegacy
             // Courses
             ///////////////////////////////////////////////////////////////////////
 
-            $sheet = $spreadsheet->getSheetByName("課程記錄");
+            $sheet = $this->loadSheet($uploadedExcel, "課程記錄");
+            if (!$sheet) {
+                throw new Exception("Courses sheet not found");
+            }
             $rows = $sheet->toArray();
 
             // Truncate cell groups table
