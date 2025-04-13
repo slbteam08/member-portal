@@ -47,6 +47,12 @@ class MemberPortalController extends JControllerLegacy
         }
     }
 
+    /**
+     * Check if a string is a valid date in YYYY-MM-DD format
+     * 
+     * @param string $date Date string to check
+     * @return bool True if valid date, false otherwise
+     */
     private function isDate($date)
     {
         if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) {
@@ -56,6 +62,12 @@ class MemberPortalController extends JControllerLegacy
         }
     }
 
+    /**
+     * Add a record of the uploaded file to the database
+     * 
+     * @param int $user User ID
+     * @param array $uploaded_file File information
+     */
     public function addUploadedFile($user, $uploaded_file)
     {
         $db    = JFactory::getDbo();
@@ -65,10 +77,10 @@ class MemberPortalController extends JControllerLegacy
             implode(
                 ", ",
                 [
-                $db->quote($user),
-                $db->quote($uploaded_file["orig_file_name"]),
-                $db->quote($uploaded_file["saved_file_name"]),
-                $db->quote($uploaded_file["import_result"]),
+                    $db->quote($user),
+                    $db->quote($uploaded_file["orig_file_name"]),
+                    $db->quote($uploaded_file["saved_file_name"]),
+                    $db->quote($uploaded_file["import_result"]),
                 ]
             )
         ];
@@ -82,6 +94,11 @@ class MemberPortalController extends JControllerLegacy
         $db->execute();
     }
 
+    /**
+     * Process uploaded Excel file
+     * 
+     * @return void
+     */
     public function uploadExcel()
     {
         $app = JFactory::getApplication();
@@ -153,7 +170,6 @@ class MemberPortalController extends JControllerLegacy
             // Get DB Query object
             $db = JFactory::getDbo();
 
-
             ///////////////////////////////////////////////////////////////////////
             // Cell Groups
             ///////////////////////////////////////////////////////////////////////
@@ -198,7 +214,6 @@ class MemberPortalController extends JControllerLegacy
 
             print_r("<p>Loaded " . count($group_values) . " cell groups" . ($dryRun ? " (DRY RUN)" : ""));
 
-
             ///////////////////////////////////////////////////////////////////////
             // Members
             ///////////////////////////////////////////////////////////////////////
@@ -228,7 +243,6 @@ class MemberPortalController extends JControllerLegacy
 
             print_r("<p>Loaded " . count($members) . " members" . ($dryRun ? " (DRY RUN)" : ""));
 
-
             ///////////////////////////////////////////////////////////////////////
             // Member attributes
             ///////////////////////////////////////////////////////////////////////
@@ -244,12 +258,12 @@ class MemberPortalController extends JControllerLegacy
                 $member_attrs_values[] = implode(
                     ', ',
                     [
-                    $db->quote($attrs[0]),
-                    $db->quote($attrs[1]),
-                    $db->quote($attrs[2]),
-                    $db->quote($attrs[3]),
-                    $db->quote($attrs[4]),
-                    $db->quote($attrs[5]),
+                        $db->quote($attrs[0]),
+                        $db->quote($attrs[1]),
+                        $db->quote($attrs[2]),
+                        $db->quote($attrs[3]),
+                        $db->quote($attrs[4]),
+                        $db->quote($attrs[5]),
                     ]
                 );
             }
@@ -266,7 +280,6 @@ class MemberPortalController extends JControllerLegacy
             }
 
             print_r("<p>Loaded " . count($member_attrs_values) . " member attribute rows" . ($dryRun ? " (DRY RUN)" : ""));
-
 
             ///////////////////////////////////////////////////////////////////////
             // Ceremony Attendance
@@ -309,7 +322,6 @@ class MemberPortalController extends JControllerLegacy
 
             print_r("<p>Loaded " . count($attendance_ceremony_values) . " ceremony attendance rows" . ($dryRun ? " (DRY RUN)" : ""));
 
-
             ///////////////////////////////////////////////////////////////////////
             // Cell Attendance
             ///////////////////////////////////////////////////////////////////////
@@ -349,7 +361,7 @@ class MemberPortalController extends JControllerLegacy
                 $attendance_cell_values[] = implode(
                     ', ',
                     [
-                    $date, $member_code, $visitor_name, $cell_group_name, $event_type
+                        $date, $member_code, $visitor_name, $cell_group_name, $event_type
                     ]
                 );
             }
@@ -367,7 +379,6 @@ class MemberPortalController extends JControllerLegacy
             }
 
             print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows" . ($dryRun ? " (DRY RUN)" : ""));
-
 
             ///////////////////////////////////////////////////////////////////////
             // Offerings
@@ -423,7 +434,7 @@ class MemberPortalController extends JControllerLegacy
                     $offering_values[] = implode(
                         ', ',
                         [
-                        $db->quote($date), $db->quote($member_code), $num_offerings
+                            $db->quote($date), $db->quote($member_code), $num_offerings
                         ]
                     );
                 }
@@ -442,7 +453,6 @@ class MemberPortalController extends JControllerLegacy
             }
 
             print_r("<p>Loaded " . count($offering_values) . " offering rows" . ($dryRun ? " (DRY RUN)" : ""));
-
 
             ///////////////////////////////////////////////////////////////////////
             // Offerings v2
@@ -498,7 +508,7 @@ class MemberPortalController extends JControllerLegacy
                     $offering_values[] = implode(
                         ', ',
                         [
-                        $db->quote($date), $db->quote($member_code), $num_offerings
+                            $db->quote($date), $db->quote($member_code), $num_offerings
                         ]
                     );
                 }
@@ -526,7 +536,6 @@ class MemberPortalController extends JControllerLegacy
             }
 
             print_r("<p>Loaded " . count($offering_values) . " offering v2 rows" . ($dryRun ? " (DRY RUN)" : ""));
-
 
             ///////////////////////////////////////////////////////////////////////
             // Cell Group Schedule
@@ -576,7 +585,6 @@ class MemberPortalController extends JControllerLegacy
 
             print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates" . ($dryRun ? " (DRY RUN)" : ""));
 
-
             ///////////////////////////////////////////////////////////////////////
             // Serving Posts
             ///////////////////////////////////////////////////////////////////////
@@ -610,11 +618,11 @@ class MemberPortalController extends JControllerLegacy
                 $post_values[] = implode(
                     ', ',
                     [
-                    $db->quote($member_code),
-                    $db->quote($name),
-                    $db->quote($post),
-                    $db->quote($start),
-                    $db->quote($end)
+                        $db->quote($member_code),
+                        $db->quote($name),
+                        $db->quote($post),
+                        $db->quote($start),
+                        $db->quote($end)
                     ]
                 );
             }
@@ -631,7 +639,6 @@ class MemberPortalController extends JControllerLegacy
             }
 
             print_r("<p>Loaded " . count($post_values) . " serving post rows" . ($dryRun ? " (DRY RUN)" : ""));
-
 
             ///////////////////////////////////////////////////////////////////////
             // Courses
@@ -667,12 +674,12 @@ class MemberPortalController extends JControllerLegacy
                 $course_values[] = implode(
                     ', ',
                     [
-                    $db->quote($member_code),
-                    $db->quote($name),
-                    $db->quote($course),
-                    $db->quote($start),
-                    $db->quote($end),
-                    $db->quote($status)
+                        $db->quote($member_code),
+                        $db->quote($name),
+                        $db->quote($course),
+                        $db->quote($start),
+                        $db->quote($end),
+                        $db->quote($status)
                     ]
                 );
             }
