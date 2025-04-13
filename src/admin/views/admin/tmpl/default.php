@@ -7,13 +7,13 @@ defined('_JEXEC') or die('Restricted Access');
     <table class="table table-striped table-hover">
         <thead>
         <tr>
-            <th width="100%">Upload File</th>
+            <th width="100%">上傳檔案</th>
         </tr>
         </thead>
         <tfoot>
             <tr>
                 <td>
-                    <input type="submit"></input>
+                    <input type="submit" value="上傳"></input>
                 </td>
             </tr>
         </tfoot>
@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Restricted Access');
                 <td>
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="dry_run" value="1"> Dry Run Mode (no database changes will be made)
+                            <input type="checkbox" name="dry_run" value="1"> 測試模式（不會對資料庫進行任何更改）
                         </label>
                     </div>
                 </td>

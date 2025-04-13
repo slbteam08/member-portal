@@ -177,9 +177,9 @@ class MemberPortalController extends JControllerLegacy
         $dest = JPATH_COMPONENT . DS . "uploads" . DS . $filename;
 
         if (JFile::upload($src, $dest)) {
-            print_r("<p>Saved file to " . $dest);
+            print_r("<p>檔案已儲存至 " . $dest);
         } else {
-            print_r("Failed to save file");
+            print_r("儲存檔案失敗");
             exit(0);
         }
 
@@ -195,7 +195,7 @@ class MemberPortalController extends JControllerLegacy
         try {
             // Display dry run mode message
             if ($dryRun) {
-                print_r("<h2>DRY RUN MODE - No database changes will be made</h2>");
+                print_r("<h2>測試模式 - 不會對資料庫進行任何更改</h2>");
             }
 
             $uploadedExcel = $dest;
@@ -238,7 +238,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "小組架構");
             if (!$sheet) {
-                print_r("<p>Cell groups sheet not found - skipping cell groups import");
+                print_r("<p>找不到小組架構工作表 - 跳過小組架構匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -274,7 +274,7 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($group_values) . " cell groups" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($group_values) . " 個小組" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -304,7 +304,7 @@ class MemberPortalController extends JControllerLegacy
                 $db->execute();
             }
 
-            print_r("<p>Loaded " . count($members) . " members" . ($dryRun ? " (DRY RUN)" : ""));
+            print_r("<p>已載入 " . count($members) . " 位組員" . ($dryRun ? " (測試模式)" : ""));
 
             ///////////////////////////////////////////////////////////////////////
             // Member attributes
@@ -342,7 +342,7 @@ class MemberPortalController extends JControllerLegacy
                 $db->execute();
             }
 
-            print_r("<p>Loaded " . count($member_attrs_values) . " member attribute rows" . ($dryRun ? " (DRY RUN)" : ""));
+            print_r("<p>已載入 " . count($member_attrs_values) . " 筆組員屬性資料" . ($dryRun ? " (測試模式)" : ""));
 
             ///////////////////////////////////////////////////////////////////////
             // Ceremony Attendance
@@ -350,7 +350,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "出席記錄-崇拜");
             if (!$sheet) {
-                print_r("<p>Ceremony attendance sheet not found - skipping ceremony attendance import");
+                print_r("<p>找不到崇拜出席記錄工作表 - 跳過崇拜出席記錄匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -375,7 +375,7 @@ class MemberPortalController extends JControllerLegacy
                 $attendance_ceremony_values = array_unique($attendance_ceremony_values);
 
                 if (empty($attendance_ceremony_years)) {
-                    print_r("<p>No valid dates found in ceremony attendance sheet - skipping import");
+                    print_r("<p>在崇拜出席記錄工作表中找不到有效日期 - 跳過匯入");
                 } else {
                     // Delete existing records for the years being updated
                     if (!$dryRun) {
@@ -401,7 +401,7 @@ class MemberPortalController extends JControllerLegacy
                         $db->execute();
                     }
 
-                    print_r("<p>Loaded " . count($attendance_ceremony_values) . " ceremony attendance rows for years: " . implode(", ", $attendance_ceremony_years) . ($dryRun ? " (DRY RUN)" : ""));
+                    print_r("<p>已載入 " . count($attendance_ceremony_values) . " 筆崇拜出席記錄，年份：" . implode("、", $attendance_ceremony_years) . ($dryRun ? " (測試模式)" : ""));
                 }
             }
 
@@ -411,7 +411,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "出席記錄-小組");
             if (!$sheet) {
-                print_r("<p>Cell attendance sheet not found - skipping cell attendance import");
+                print_r("<p>找不到小組出席記錄工作表 - 跳過小組出席記錄匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -456,7 +456,7 @@ class MemberPortalController extends JControllerLegacy
                 $attendance_cell_values = array_unique($attendance_cell_values);
 
                 if (empty($attendance_cell_years)) {
-                    print_r("<p>No valid dates found in cell attendance sheet - skipping import");
+                    print_r("<p>在小組出席記錄工作表中找不到有效日期 - 跳過匯入");
                 } else {
                     // Delete existing records for the years being updated
                     if (!$dryRun) {
@@ -482,7 +482,7 @@ class MemberPortalController extends JControllerLegacy
                         $db->execute();
                     }
 
-                    print_r("<p>Loaded " . count($attendance_cell_values) . " cell attendance rows for years: " . implode(", ", $attendance_cell_years) . ($dryRun ? " (DRY RUN)" : ""));
+                    print_r("<p>已載入 " . count($attendance_cell_values) . " 筆小組出席記錄，年份：" . implode("、", $attendance_cell_years) . ($dryRun ? " (測試模式)" : ""));
                 }
             }
 
@@ -492,7 +492,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "奉獻記錄");
             if (!$sheet) {
-                print_r("<p>Offerings sheet not found - skipping offerings import");
+                print_r("<p>找不到奉獻記錄工作表 - 跳過奉獻記錄匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -558,7 +558,7 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($offering_values) . " offering rows" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($offering_values) . " 筆奉獻記錄" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -567,7 +567,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "奉獻記錄v2");
             if (!$sheet) {
-                print_r("<p>Offerings v2 sheet not found - skipping offerings v2 import");
+                print_r("<p>找不到奉獻記錄v2工作表 - 跳過奉獻記錄v2匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -622,7 +622,6 @@ class MemberPortalController extends JControllerLegacy
                 }
                 $offering_values = array_unique($offering_values);
 
-                print_r("<p>Updating offerings for months from " . date('Y M', strtotime($months[0])) . " to " . date('Y M', strtotime(end($months))));
 
                 // Delete months covered by v2 sheet
                 if (!$dryRun) {
@@ -644,7 +643,7 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($offering_values) . " offering v2 rows" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($offering_values) . " 筆奉獻記錄v2，從 " . date('Y M', strtotime($months[0])) . " 至 " . date('Y M', strtotime(end($months))) . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -653,7 +652,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "小組日程");
             if (!$sheet) {
-                print_r("<p>Cell schedule sheet not found - skipping cell schedule import");
+                print_r("<p>找不到小組日程工作表 - 跳過小組日程匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -693,7 +692,7 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($schedule_values) . " cell schedule dates" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($schedule_values) . " 筆小組日程" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -702,7 +701,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "組員事奉崗位");
             if (!$sheet) {
-                print_r("<p>Serving posts sheet not found - skipping serving posts import");
+                print_r("<p>找不到事奉崗位工作表 - 跳過事奉崗位匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -749,7 +748,7 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($post_values) . " serving post rows" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($post_values) . " 筆事奉崗位記錄" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -758,7 +757,7 @@ class MemberPortalController extends JControllerLegacy
 
             $sheet = $this->loadSheet($uploadedExcel, "課程記錄");
             if (!$sheet) {
-                print_r("<p>Courses sheet not found - skipping courses import");
+                print_r("<p>找不到課程記錄工作表 - 跳過課程記錄匯入");
             } else {
                 $rows = $sheet->toArray();
 
@@ -807,11 +806,11 @@ class MemberPortalController extends JControllerLegacy
                     $db->execute();
                 }
 
-                print_r("<p>Loaded " . count($course_values) . " course rows" . ($dryRun ? " (DRY RUN)" : ""));
+                print_r("<p>已載入 " . count($course_values) . " 筆課程記錄" . ($dryRun ? " (測試模式)" : ""));
             }
             
             if ($dryRun) {
-                print_r("<h3>Dry run completed successfully. No database changes were made.</h3>");
+                print_r("<h3>測試模式已完成。未對資料庫進行任何更改。</h3>");
             }
         } catch (Exception $e) {
             print_r($e);
