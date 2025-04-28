@@ -200,13 +200,7 @@ class MemberPortalController extends JControllerLegacy
 
             $uploadedExcel = $dest;
 
-            // Read member list
-            $memberSheet = $this->loadSheet($uploadedExcel, "小組組員");
-            if (!$memberSheet) {
-                throw new Exception("Members sheet not found");
-            }
-            $rows = $memberSheet->toArray();
-
+            // Initialize arrays for all sheets
             $members = [];
             $cell_groups = [];
             $member_attrs = [];
@@ -223,63 +217,149 @@ class MemberPortalController extends JControllerLegacy
                 "課程記錄" => []
             ]; // Store validation messages by sheet name
 
-            foreach ($rows as $idx => $row) {
-                if ($idx == 0) {
-                    continue;
-                } // Skip header row
-                if (empty($row[0])) {
-                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號為空";
-                    continue;
-                }
+            ///////////////////////////////////////////////////////////////////////
+            // First Pass: Run all validations
+            ///////////////////////////////////////////////////////////////////////
 
-                $members[] = [$row[0], $row[1]]; // Member code and name
+            // Validate Members Sheet
+            $memberSheet = $this->loadSheet($uploadedExcel, "小組組員");
+            if (!$memberSheet) {
+                $validation_messages["小組組員"][] = "找不到小組組員工作表";
+            } else {
+                $rows = $memberSheet->toArray();
+                foreach ($rows as $idx => $row) {
+                    if ($idx == 0) continue; // Skip header row
+                    if (empty($row[0])) {
+                        $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號為空";
+                        continue;
+                    }
 
-                if (!empty($row[2])) {
-                    // Cell group name
-                    // - Temp source. Should use 小組架構 sheet instead
-                    $cell_groups[] = strtoupper(trim($row[2]));
-                }
+                    $members[] = [$row[0], $row[1]]; // Member code and name
 
-                // Parse dates
-                $start_date = $this->parseExcelDate($row[5]);
-                $end_date = $this->parseExcelDate($row[6]);
+                    if (!empty($row[2])) {
+                        $cell_groups[] = strtoupper(trim($row[2]));
+                    }
 
-                // Check if dates are in wrong format
-                if ($row[5] !== '' && $start_date === "ERROR") {
-                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期格式錯誤";
-                    continue;
-                }
-                if ($row[6] !== '' && $end_date === "ERROR") {
-                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的結束日期格式錯誤"; 
-                    continue;
-                }
+                    // Parse dates
+                    $start_date = $this->parseExcelDate($row[5]);
+                    $end_date = $this->parseExcelDate($row[6]);
 
-                // Check if start date and end date are the same
-                if ($end_date !== null && $start_date === $end_date) {
-                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期和結束日期不能相同";
-                    continue;
-                }
+                    // Check if dates are in wrong format
+                    if ($row[5] !== '' && $start_date === "ERROR") {
+                        $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期格式錯誤";
+                        continue;
+                    }
+                    if ($row[6] !== '' && $end_date === "ERROR") {
+                        $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的結束日期格式錯誤";
+                        continue;
+                    }
 
-                // Create unique key for member code and start date
-                $key = $row[0] . '_' . $start_date;
+                    // Check if start date and end date are the same
+                    if ($end_date !== null && $start_date === $end_date) {
+                        $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期和結束日期不能相同";
+                        continue;
+                    }
 
-                // Check if this combination already exists
-                if (!isset($member_attrs_keys[$key])) {
-                    $member_attrs_keys[$key] = true;
-                    $member_attrs[] = [
-                        $row[0], 
-                        $row[2], 
-                        $row[3], 
-                        $row[4], 
-                        $start_date,
-                        $end_date
-                    ];
-                } else {
-                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 在日期 " . $start_date . " 已有重複記錄";
+                    // Create unique key for member code and start date
+                    $key = $row[0] . '_' . $start_date;
+
+                    // Check if this combination already exists
+                    if (!isset($member_attrs_keys[$key])) {
+                        $member_attrs_keys[$key] = true;
+                        $member_attrs[] = [
+                            $row[0], 
+                            $row[2], 
+                            $row[3], 
+                            $row[4], 
+                            $start_date,
+                            $end_date
+                        ];
+                    } else {
+                        $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 在日期 " . $start_date . " 已有重複記錄";
+                    }
                 }
             }
 
-            // Check if there are any validation errors
+            // Validate Serving Posts Sheet
+            $sheet = $this->loadSheet($uploadedExcel, "組員事奉崗位");
+            if ($sheet) {
+                $rows = $sheet->toArray();
+                foreach ($rows as $idx => $row) {
+                    if ($idx == 0) continue; // Skip header
+                    if (empty($row[0])) continue; // Skip invalid member code
+
+                    $member_code = $row[0];
+                    $name = $row[1];
+                    $post = $row[2];
+                    
+                    // Parse and validate dates
+                    $start_date = $this->parseExcelDate($row[3]);
+                    $end_date = $this->parseExcelDate($row[4]);
+
+                    // Check if dates are in wrong format
+                    if ($row[3] !== '' && $start_date === "ERROR") {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期格式錯誤";
+                        continue;
+                    }
+                    if ($row[4] !== '' && $end_date === "ERROR") {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的結束日期格式錯誤";
+                        continue;
+                    }
+
+                    // Check if start date and end date are the same
+                    if ($end_date !== null && $start_date === $end_date) {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期和結束日期不能相同";
+                        continue;
+                    }
+                }
+            }
+
+            // Validate Courses Sheet
+            $sheet = $this->loadSheet($uploadedExcel, "課程記錄");
+            if ($sheet) {
+                $rows = $sheet->toArray();
+                $course_keys = []; // Track unique combinations
+                foreach ($rows as $idx => $row) {
+                    if ($idx == 0) continue; // Skip header
+                    if (empty($row[0])) continue; // Skip invalid member code
+
+                    $member_code = $row[0];
+                    $course = $row[2];
+                    
+                    // Parse and validate dates
+                    $start_date = $this->parseExcelDate($row[3]);
+                    $end_date = $this->parseExcelDate($row[4]);
+
+                    // Check if start date is empty
+                    if (empty($row[3])) {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期不能為空";
+                        continue;
+                    }
+
+                    // Check if dates are in wrong format
+                    if ($start_date === "ERROR") {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期格式錯誤";
+                        continue;
+                    }
+                    if ($row[4] !== '' && $end_date === "ERROR") {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的結束日期格式錯誤";
+                        continue;
+                    }
+
+                    // Create unique key for member + course + start_date
+                    $key = $member_code . '_' . $course . '_' . $start_date;
+
+                    // Check if this combination already exists
+                    if (isset($course_keys[$key])) {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的課程 " . $course . " 在日期 " . $start_date . " 已有重複記錄";
+                        continue;
+                    }
+
+                    $course_keys[$key] = true;
+                }
+            }
+
+            // Check if there are any validation errors across all sheets
             $has_errors = false;
             foreach ($validation_messages as $sheet => $messages) {
                 if (!empty($messages)) {
@@ -304,8 +384,34 @@ class MemberPortalController extends JControllerLegacy
                 return;
             }
 
+            ///////////////////////////////////////////////////////////////////////
+            // Second Pass: Execute imports if no validation errors
+            ///////////////////////////////////////////////////////////////////////
+
             // Get DB Query object
             $db = JFactory::getDbo();
+
+            // Import Members
+            $members = array_unique($members, SORT_REGULAR);
+            $member_values = [];
+            foreach ($members as $member) {
+                $member_values[] = $db->quote($member[0]) . ', ' . $db->quote($member[1]);
+            }
+
+            if (!$dryRun) {
+                $db->truncateTable('#__memberportal_members');
+
+                $query = $db->getQuery(true);
+                $columns = array('member_code', 'name_chi');
+                $query
+                    ->insert($db->quoteName('#__memberportal_members'))
+                    ->columns($db->quoteName($columns))
+                    ->values($member_values);
+                $db->setQuery($query);
+                $db->execute();
+            }
+
+            print_r("<p>已載入 " . count($members) . " 位組員" . ($dryRun ? " (測試模式)" : ""));
 
             ///////////////////////////////////////////////////////////////////////
             // Cell Groups
@@ -316,11 +422,6 @@ class MemberPortalController extends JControllerLegacy
                 print_r("<p>找不到小組架構工作表 - 跳過小組架構匯入");
             } else {
                 $rows = $sheet->toArray();
-
-                // Truncate cell groups table
-                if (!$dryRun) {
-                    $db->truncateTable('#__memberportal_cell_groups');
-                }
 
                 // Insert cell groups
                 $group_values = [];
@@ -339,6 +440,8 @@ class MemberPortalController extends JControllerLegacy
                 }
 
                 if (!$dryRun) {
+                    $db->truncateTable('#__memberportal_cell_groups');
+
                     $query = $db->getQuery(true);
                     $columns = array('name', 'district', 'zone', 'start_date', 'end_date');
                     $query
@@ -353,42 +456,8 @@ class MemberPortalController extends JControllerLegacy
             }
 
             ///////////////////////////////////////////////////////////////////////
-            // Members
-            ///////////////////////////////////////////////////////////////////////
-
-            // Truncate members table
-            if (!$dryRun) {
-                $db->truncateTable('#__memberportal_members');
-            }
-
-            // Insert members
-            $members = array_unique($members, SORT_REGULAR);
-            $member_values = [];
-            foreach ($members as $member) {
-                $member_values[] = $db->quote($member[0]) . ', ' . $db->quote($member[1]);
-            }
-
-            if (!$dryRun) {
-                $query = $db->getQuery(true);
-                $columns = array('member_code', 'name_chi');
-                $query
-                    ->insert($db->quoteName('#__memberportal_members'))
-                    ->columns($db->quoteName($columns))
-                    ->values($member_values);
-                $db->setQuery($query);
-                $db->execute();
-            }
-
-            print_r("<p>已載入 " . count($members) . " 位組員" . ($dryRun ? " (測試模式)" : ""));
-
-            ///////////////////////////////////////////////////////////////////////
             // Member attributes
             ///////////////////////////////////////////////////////////////////////
-
-            // Truncate member attributes table
-            if (!$dryRun) {
-                $db->truncateTable('#__memberportal_member_attrs');
-            }
 
             // Insert member attributes
             $member_attrs_values = [];
@@ -407,6 +476,8 @@ class MemberPortalController extends JControllerLegacy
             }
 
             if (!$dryRun) {
+                $db->truncateTable('#__memberportal_member_attrs');
+
                 $query = $db->getQuery(true);
                 $columns = array('member_code', 'cell_group_name', 'cell_role', 'member_category', 'start_date', 'end_date');
                 $query
@@ -451,9 +522,9 @@ class MemberPortalController extends JControllerLegacy
 
                 if (empty($attendance_ceremony_years)) {
                     print_r("<p>在崇拜出席記錄工作表中找不到有效日期 - 跳過匯入");
-                } else {
-                    // Delete existing records for the years being updated
+                } else {                    
                     if (!$dryRun) {
+                        // Delete existing records for the years being updated
                         $query = $db->getQuery(true);
                         $query
                             ->delete($db->quoteName('#__memberportal_attendance_ceremony'))
@@ -463,9 +534,8 @@ class MemberPortalController extends JControllerLegacy
                         }
                         $db->setQuery($query);
                         $db->execute();
-                    }
 
-                    if (!$dryRun) {
+                        // Insert new records
                         $query = $db->getQuery(true);
                         $columns = array('date', 'member_code');
                         $query
@@ -533,8 +603,8 @@ class MemberPortalController extends JControllerLegacy
                 if (empty($attendance_cell_years)) {
                     print_r("<p>在小組出席記錄工作表中找不到有效日期 - 跳過匯入");
                 } else {
-                    // Delete existing records for the years being updated
                     if (!$dryRun) {
+                        // Delete existing records for the years being updated
                         $query = $db->getQuery(true);
                         $query
                             ->delete($db->quoteName('#__memberportal_attendance_cell'))
@@ -544,9 +614,8 @@ class MemberPortalController extends JControllerLegacy
                         }
                         $db->setQuery($query);
                         $db->execute();
-                    }
 
-                    if (!$dryRun) {
+                        // Insert new records
                         $query = $db->getQuery(true);
                         $columns = array('date', 'member_code', 'visitor_name', 'cell_group_name', 'event_type');
                         $query
@@ -575,11 +644,6 @@ class MemberPortalController extends JControllerLegacy
                 if (count($rows) <= 1) {
                     print_r("<p>奉獻記錄工作表為空 - 跳過奉獻記錄匯入");
                 } else {
-                    // Truncate member attributes table
-                    if (!$dryRun) {
-                        $db->truncateTable('#__memberportal_offerings');
-                    }
-
                     // Insert offerings
                     $offering_members = [];
                     foreach ($rows as $idx => $row) {
@@ -627,6 +691,8 @@ class MemberPortalController extends JControllerLegacy
                     $offering_values = array_unique($offering_values);
 
                     if (!$dryRun) {
+                        $db->truncateTable('#__memberportal_offerings');
+
                         $query = $db->getQuery(true);
                         $columns = array('date', 'member_code', 'num_offerings');
                         $query
@@ -736,11 +802,6 @@ class MemberPortalController extends JControllerLegacy
             } else {
                 $rows = $sheet->toArray();
 
-                // Truncate cell groups table
-                if (!$dryRun) {
-                    $db->truncateTable('#__memberportal_cell_schedule');
-                }
-
                 $schedule_values = [];
                 foreach ($rows as $idx => $row) {
                     if ($idx == 0) {
@@ -762,6 +823,8 @@ class MemberPortalController extends JControllerLegacy
                 }
 
                 if (!$dryRun) {
+                    $db->truncateTable('#__memberportal_cell_schedule');
+
                     $query = $db->getQuery(true);
                     $columns = array('year', 'week', 'week_start');
                     $query
@@ -812,12 +875,6 @@ class MemberPortalController extends JControllerLegacy
                         continue;
                     }
 
-                    // Check if start date and end date are the same
-                    if ($end_date !== null && $start_date === $end_date) {
-                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期和結束日期不能相同";
-                        continue;
-                    }
-
                     $post_values[] = implode(
                         ', ',
                         [
@@ -831,29 +888,20 @@ class MemberPortalController extends JControllerLegacy
                 }
 
                 // Only proceed with import if there are no validation messages
-                if (empty($validation_messages["組員事奉崗位"])) {
-                    if (!$dryRun) {
-                        $db->truncateTable('#__memberportal_serving_posts');
+                if (!$dryRun) {
+                    $db->truncateTable('#__memberportal_serving_posts');
 
-                        $query = $db->getQuery(true);
-                        $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
-                        $query
-                            ->insert($db->quoteName('#__memberportal_serving_posts'))
-                            ->columns($db->quoteName($columns))
-                            ->values($post_values);
-                        $db->setQuery($query);
-                        $db->execute();
-                    }
-
-                    print_r("<p>已載入 " . count($post_values) . " 筆事奉崗位記錄" . ($dryRun ? " (測試模式)" : ""));
-                } else {
-                    print_r("<p>事奉崗位工作表有驗證錯誤 - 跳過事奉崗位匯入");
-                    print_r("<ul>");
-                    foreach ($validation_messages["組員事奉崗位"] as $message) {
-                        print_r("<li>" . $message . "</li>");
-                    }
-                    print_r("</ul>");
+                    $query = $db->getQuery(true);
+                    $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
+                    $query
+                        ->insert($db->quoteName('#__memberportal_serving_posts'))
+                        ->columns($db->quoteName($columns))
+                        ->values($post_values);
+                    $db->setQuery($query);
+                    $db->execute();
                 }
+
+                print_r("<p>已載入 " . count($post_values) . " 筆事奉崗位記錄" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -865,11 +913,6 @@ class MemberPortalController extends JControllerLegacy
                 print_r("<p>找不到課程記錄工作表 - 跳過課程記錄匯入");
             } else {
                 $rows = $sheet->toArray();
-
-                // Truncate cell groups table
-                if (!$dryRun) {
-                    $db->truncateTable('#__memberportal_courses');
-                }
 
                 $course_values = [];
                 $course_keys = []; // Track unique combinations of member + course + start_date
@@ -932,31 +975,26 @@ class MemberPortalController extends JControllerLegacy
                 }
 
                 // Only proceed with import if there are no validation messages
-                if (empty($validation_messages["課程記錄"])) {
-                    if (!$dryRun) {
-                        $query = $db->getQuery(true);
-                        $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
-                        $query
-                            ->insert($db->quoteName('#__memberportal_courses'))
-                            ->columns($db->quoteName($columns))
-                            ->values($course_values);
-                        $db->setQuery($query);
-                        $db->execute();
-                    }
+                if (!$dryRun) {
+                    $db->truncateTable('#__memberportal_courses');
 
-                    print_r("<p>已載入 " . count($course_values) . " 筆課程記錄" . ($dryRun ? " (測試模式)" : ""));
-                } else {
-                    print_r("<p>課程記錄工作表有驗證錯誤 - 跳過課程記錄匯入");
-                    print_r("<ul>");
-                    foreach ($validation_messages["課程記錄"] as $message) {
-                        print_r("<li>" . $message . "</li>");
-                    }
-                    print_r("</ul>");
+                    $query = $db->getQuery(true);
+                    $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
+                    $query
+                        ->insert($db->quoteName('#__memberportal_courses'))
+                        ->columns($db->quoteName($columns))
+                        ->values($course_values);
+                    $db->setQuery($query);
+                    $db->execute();
                 }
+
+                print_r("<p>已載入 " . count($course_values) . " 筆課程記錄" . ($dryRun ? " (測試模式)" : ""));
             }
             
             if ($dryRun) {
                 print_r("<h3>測試模式已完成。未對資料庫進行任何更改。</h3>");
+            } else {
+                print_r("<h3>匯入完成。</h3>");
             }
         } catch (Exception $e) {
             print_r($e);
