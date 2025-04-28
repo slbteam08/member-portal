@@ -152,7 +152,7 @@ class MemberPortalController extends JControllerLegacy
             }
         }
 
-        return null;
+        return "ERROR";
     }
 
     /**
@@ -210,13 +210,27 @@ class MemberPortalController extends JControllerLegacy
             $members = [];
             $cell_groups = [];
             $member_attrs = [];
+            $member_attrs_keys = []; // Track unique combinations
+            $validation_messages = [
+                "小組組員" => [],
+                "小組架構" => [],
+                "出席記錄-崇拜" => [],
+                "出席記錄-小組" => [],
+                "奉獻記錄" => [],
+                "奉獻記錄v2" => [],
+                "小組日程" => [],
+                "組員事奉崗位" => [],
+                "課程記錄" => []
+            ]; // Store validation messages by sheet name
+
             foreach ($rows as $idx => $row) {
                 if ($idx == 0) {
                     continue;
                 } // Skip header row
                 if (empty($row[0])) {
+                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號為空";
                     continue;
-                } // Skip invalid member code
+                }
 
                 $members[] = [$row[0], $row[1]]; // Member code and name
 
@@ -226,7 +240,68 @@ class MemberPortalController extends JControllerLegacy
                     $cell_groups[] = strtoupper(trim($row[2]));
                 }
 
-                $member_attrs[] = [$row[0], $row[2], $row[3], $row[4], $row[5], $row[6]];
+                // Parse dates
+                $start_date = $this->parseExcelDate($row[5]);
+                $end_date = $this->parseExcelDate($row[6]);
+
+                // Check if dates are in wrong format
+                if ($row[5] !== '' && $start_date === "ERROR") {
+                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期格式錯誤";
+                    continue;
+                }
+                if ($row[6] !== '' && $end_date === "ERROR") {
+                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的結束日期格式錯誤"; 
+                    continue;
+                }
+
+                // Check if start date and end date are the same
+                if ($end_date !== null && $start_date === $end_date) {
+                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 的開始日期和結束日期不能相同";
+                    continue;
+                }
+
+                // Create unique key for member code and start date
+                $key = $row[0] . '_' . $start_date;
+
+                // Check if this combination already exists
+                if (!isset($member_attrs_keys[$key])) {
+                    $member_attrs_keys[$key] = true;
+                    $member_attrs[] = [
+                        $row[0], 
+                        $row[2], 
+                        $row[3], 
+                        $row[4], 
+                        $start_date,
+                        $end_date
+                    ];
+                } else {
+                    $validation_messages["小組組員"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $row[0] . " 在日期 " . $start_date . " 已有重複記錄";
+                }
+            }
+
+            // Check if there are any validation errors
+            $has_errors = false;
+            foreach ($validation_messages as $sheet => $messages) {
+                if (!empty($messages)) {
+                    $has_errors = true;
+                    break;
+                }
+            }
+
+            if ($has_errors) {
+                print_r("<h3>匯入驗證錯誤：</h3>");
+                foreach ($validation_messages as $sheet => $messages) {
+                    if (!empty($messages)) {
+                        print_r("<h4>" . $sheet . "：</h4>");
+                        print_r("<ul>");
+                        foreach ($messages as $message) {
+                            print_r("<li>" . $message . "</li>");
+                        }
+                        print_r("</ul>");
+                    }
+                }
+                print_r("<p>請修正以上錯誤後重新匯入。</p>");
+                return;
             }
 
             // Get DB Query object
