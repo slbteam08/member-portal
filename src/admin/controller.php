@@ -570,70 +570,75 @@ class MemberPortalController extends JControllerLegacy
                 print_r("<p>找不到奉獻記錄工作表 - 跳過奉獻記錄匯入");
             } else {
                 $rows = $sheet->toArray();
+                
+                // Check if sheet is empty (only has header row or no rows)
+                if (count($rows) <= 1) {
+                    print_r("<p>奉獻記錄工作表為空 - 跳過奉獻記錄匯入");
+                } else {
+                    // Truncate member attributes table
+                    if (!$dryRun) {
+                        $db->truncateTable('#__memberportal_offerings');
+                    }
 
-                // Truncate member attributes table
-                if (!$dryRun) {
-                    $db->truncateTable('#__memberportal_offerings');
+                    // Insert offerings
+                    $offering_members = [];
+                    foreach ($rows as $idx => $row) {
+                        if ($idx == 0) {
+                            continue;
+                        }  // Skip header
+
+                        $date_arr = date_parse_from_format("j/n/Y", $row[0]);
+                        if ($date_arr["error_count"] > 0) {
+                            // Parse with another format
+                            $date_arr = date_parse_from_format("Y-m", $row[0]);
+                            $date_arr["day"] = 1;
+                        }
+                        $date = implode("-", [$date_arr["year"], $date_arr["month"], $date_arr["day"]]);
+                        $member_code = $row[1];
+                        if (empty($row[2])) {
+                            $num_offerings = 1; // Default count 1 time
+                        } else {
+                            $num_offerings = $row[2];
+                        }
+
+                        // Put into dict for deduplication
+                        if (!array_key_exists($member_code, $offering_members)) {
+                            $offering_members[$member_code] = [];
+                        }
+                        $member_dates = &$offering_members[$member_code];
+                        if (in_array($date, $member_dates)) {
+                            $member_dates[$date] = max($member_dates[$date], $num_offerings);
+                        } else {
+                            $member_dates[$date] = $num_offerings;
+                        }
+                    }
+
+                    $offering_values = [];
+                    foreach ($offering_members as $member_code => $member_dates) {
+                        foreach ($member_dates as $date => $num_offerings) {
+                            $offering_values[] = implode(
+                                ', ',
+                                [
+                                    $db->quote($date), $db->quote($member_code), $num_offerings
+                                ]
+                            );
+                        }
+                    }
+                    $offering_values = array_unique($offering_values);
+
+                    if (!$dryRun) {
+                        $query = $db->getQuery(true);
+                        $columns = array('date', 'member_code', 'num_offerings');
+                        $query
+                            ->insert($db->quoteName('#__memberportal_offerings'))
+                            ->columns($db->quoteName($columns))
+                            ->values($offering_values);
+                        $db->setQuery($query);
+                        $db->execute();
+                    }
+
+                    print_r("<p>已載入 " . count($offering_values) . " 筆奉獻記錄" . ($dryRun ? " (測試模式)" : ""));
                 }
-
-                // Insert offerings
-                $offering_members = [];
-                foreach ($rows as $idx => $row) {
-                    if ($idx == 0) {
-                        continue;
-                    }  // Skip header
-
-                    $date_arr = date_parse_from_format("j/n/Y", $row[0]);
-                    if ($date_arr["error_count"] > 0) {
-                        // Parse with another format
-                        $date_arr = date_parse_from_format("Y-m", $row[0]);
-                        $date_arr["day"] = 1;
-                    }
-                    $date = implode("-", [$date_arr["year"], $date_arr["month"], $date_arr["day"]]);
-                    $member_code = $row[1];
-                    if (empty($row[2])) {
-                        $num_offerings = 1; // Default count 1 time
-                    } else {
-                        $num_offerings = $row[2];
-                    }
-
-                    // Put into dict for deduplication
-                    if (!array_key_exists($member_code, $offering_members)) {
-                        $offering_members[$member_code] = [];
-                    }
-                    $member_dates = &$offering_members[$member_code];
-                    if (in_array($date, $member_dates)) {
-                        $member_dates[$date] = max($member_dates[$date], $num_offerings);
-                    } else {
-                        $member_dates[$date] = $num_offerings;
-                    }
-                }
-
-                $offering_values = [];
-                foreach ($offering_members as $member_code => $member_dates) {
-                    foreach ($member_dates as $date => $num_offerings) {
-                        $offering_values[] = implode(
-                            ', ',
-                            [
-                                $db->quote($date), $db->quote($member_code), $num_offerings
-                            ]
-                        );
-                    }
-                }
-                $offering_values = array_unique($offering_values);
-
-                if (!$dryRun) {
-                    $query = $db->getQuery(true);
-                    $columns = array('date', 'member_code', 'num_offerings');
-                    $query
-                        ->insert($db->quoteName('#__memberportal_offerings'))
-                        ->columns($db->quoteName($columns))
-                        ->values($offering_values);
-                    $db->setQuery($query);
-                    $db->execute();
-                }
-
-                print_r("<p>已載入 " . count($offering_values) . " 筆奉獻記錄" . ($dryRun ? " (測試模式)" : ""));
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -780,11 +785,6 @@ class MemberPortalController extends JControllerLegacy
             } else {
                 $rows = $sheet->toArray();
 
-                // Truncate cell groups table
-                if (!$dryRun) {
-                    $db->truncateTable('#__memberportal_serving_posts');
-                }
-
                 $post_values = [];
                 foreach ($rows as $idx => $row) {
                     if ($idx == 0) {
@@ -797,8 +797,26 @@ class MemberPortalController extends JControllerLegacy
                     $member_code = $row[0];
                     $name = $row[1];
                     $post = $row[2];
-                    $start = $row[3];
-                    $end = $row[4];
+                    
+                    // Parse and validate dates
+                    $start_date = $this->parseExcelDate($row[3]);
+                    $end_date = $this->parseExcelDate($row[4]);
+
+                    // Check if dates are in wrong format
+                    if ($row[3] !== '' && $start_date === "ERROR") {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期格式錯誤";
+                        continue;
+                    }
+                    if ($row[4] !== '' && $end_date === "ERROR") {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的結束日期格式錯誤";
+                        continue;
+                    }
+
+                    // Check if start date and end date are the same
+                    if ($end_date !== null && $start_date === $end_date) {
+                        $validation_messages["組員事奉崗位"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期和結束日期不能相同";
+                        continue;
+                    }
 
                     $post_values[] = implode(
                         ', ',
@@ -806,24 +824,36 @@ class MemberPortalController extends JControllerLegacy
                             $db->quote($member_code),
                             $db->quote($name),
                             $db->quote($post),
-                            $db->quote($start),
-                            $db->quote($end)
+                            $db->quote($start_date),
+                            $db->quote($end_date)
                         ]
                     );
                 }
 
-                if (!$dryRun) {
-                    $query = $db->getQuery(true);
-                    $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
-                    $query
-                        ->insert($db->quoteName('#__memberportal_serving_posts'))
-                        ->columns($db->quoteName($columns))
-                        ->values($post_values);
-                    $db->setQuery($query);
-                    $db->execute();
-                }
+                // Only proceed with import if there are no validation messages
+                if (empty($validation_messages["組員事奉崗位"])) {
+                    if (!$dryRun) {
+                        $db->truncateTable('#__memberportal_serving_posts');
 
-                print_r("<p>已載入 " . count($post_values) . " 筆事奉崗位記錄" . ($dryRun ? " (測試模式)" : ""));
+                        $query = $db->getQuery(true);
+                        $columns = array('member_code', 'name', 'post', 'start_date', 'end_date');
+                        $query
+                            ->insert($db->quoteName('#__memberportal_serving_posts'))
+                            ->columns($db->quoteName($columns))
+                            ->values($post_values);
+                        $db->setQuery($query);
+                        $db->execute();
+                    }
+
+                    print_r("<p>已載入 " . count($post_values) . " 筆事奉崗位記錄" . ($dryRun ? " (測試模式)" : ""));
+                } else {
+                    print_r("<p>事奉崗位工作表有驗證錯誤 - 跳過事奉崗位匯入");
+                    print_r("<ul>");
+                    foreach ($validation_messages["組員事奉崗位"] as $message) {
+                        print_r("<li>" . $message . "</li>");
+                    }
+                    print_r("</ul>");
+                }
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -842,6 +872,8 @@ class MemberPortalController extends JControllerLegacy
                 }
 
                 $course_values = [];
+                $course_keys = []; // Track unique combinations of member + course + start_date
+
                 foreach ($rows as $idx => $row) {
                     if ($idx == 0) {
                         continue;
@@ -853,8 +885,37 @@ class MemberPortalController extends JControllerLegacy
                     $member_code = $row[0];
                     $name = $row[1];
                     $course = $row[2];
-                    $start = $row[3];
-                    $end = $row[4];
+                    
+                    // Parse and validate dates
+                    $start_date = $this->parseExcelDate($row[3]);
+                    $end_date = $this->parseExcelDate($row[4]);
+
+                    // Check if start date is empty
+                    if (empty($row[3])) {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期不能為空";
+                        continue;
+                    }
+
+                    // Check if dates are in wrong format
+                    if ($start_date === "ERROR") {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的開始日期格式錯誤";
+                        continue;
+                    }
+                    if ($row[4] !== '' && $end_date === "ERROR") {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的結束日期格式錯誤";
+                        continue;
+                    }
+
+                    // Create unique key for member + course + start_date
+                    $key = $member_code . '_' . $course . '_' . $start_date;
+
+                    // Check if this combination already exists
+                    if (isset($course_keys[$key])) {
+                        $validation_messages["課程記錄"][] = "第 " . ($idx + 1) . " 行：組員編號 " . $member_code . " 的課程 " . $course . " 在日期 " . $start_date . " 已有重複記錄";
+                        continue;
+                    }
+
+                    $course_keys[$key] = true;
                     $status = $row[5];
 
                     $course_values[] = implode(
@@ -863,25 +924,35 @@ class MemberPortalController extends JControllerLegacy
                             $db->quote($member_code),
                             $db->quote($name),
                             $db->quote($course),
-                            $db->quote($start),
-                            $db->quote($end),
+                            $db->quote($start_date),
+                            $db->quote($end_date),
                             $db->quote($status)
                         ]
                     );
                 }
 
-                if (!$dryRun) {
-                    $query = $db->getQuery(true);
-                    $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
-                    $query
-                        ->insert($db->quoteName('#__memberportal_courses'))
-                        ->columns($db->quoteName($columns))
-                        ->values($course_values);
-                    $db->setQuery($query);
-                    $db->execute();
-                }
+                // Only proceed with import if there are no validation messages
+                if (empty($validation_messages["課程記錄"])) {
+                    if (!$dryRun) {
+                        $query = $db->getQuery(true);
+                        $columns = array('member_code', 'name', 'course', 'start_date', 'end_date', 'status');
+                        $query
+                            ->insert($db->quoteName('#__memberportal_courses'))
+                            ->columns($db->quoteName($columns))
+                            ->values($course_values);
+                        $db->setQuery($query);
+                        $db->execute();
+                    }
 
-                print_r("<p>已載入 " . count($course_values) . " 筆課程記錄" . ($dryRun ? " (測試模式)" : ""));
+                    print_r("<p>已載入 " . count($course_values) . " 筆課程記錄" . ($dryRun ? " (測試模式)" : ""));
+                } else {
+                    print_r("<p>課程記錄工作表有驗證錯誤 - 跳過課程記錄匯入");
+                    print_r("<ul>");
+                    foreach ($validation_messages["課程記錄"] as $message) {
+                        print_r("<li>" . $message . "</li>");
+                    }
+                    print_r("</ul>");
+                }
             }
             
             if ($dryRun) {
