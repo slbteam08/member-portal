@@ -359,6 +359,26 @@ class MemberPortalController extends JControllerLegacy
                 }
             }
 
+            // Validate Cell Schedule Sheet
+            $sheet = $this->loadSheet($uploadedExcel, "小組日程");
+            if ($sheet) {
+                $rows = $sheet->toArray();
+                foreach ($rows as $idx => $row) {
+                    if ($idx == 0) continue; // Skip header
+                    if (empty($row[0])) continue; // Skip invalid year
+
+                    $year = $row[0];
+                    $week = $row[1];
+                    $week_start = $this->parseExcelDate($row[2]);
+
+                    // Check if dates are in wrong format
+                    if ($row[2] !== '小組暫停' && $week_start === "ERROR") {
+                        $validation_messages["小組日程"][] = "第 " . ($idx + 1) . " 行： " . $year . "年" . $week . "週 的開始日期格式錯誤";
+                        continue;
+                    }
+                }
+            }
+
             // Check if there are any validation errors across all sheets
             $has_errors = false;
             foreach ($validation_messages as $sheet => $messages) {
@@ -813,8 +833,8 @@ class MemberPortalController extends JControllerLegacy
 
                     $year = $row[0];
                     $week = $row[1];
-                    if ($this->isDate($row[2])) {
-                        $week_start = $db->quote($row[2]);
+                    if ($row[2] !== '小組暫停') {
+                        $week_start = $db->quote($this->parseExcelDate($row[2]));
                     } else {
                         $week_start = "NULL";
                     }
