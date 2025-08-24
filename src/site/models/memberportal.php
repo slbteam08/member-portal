@@ -139,16 +139,16 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select(
             [
-                'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
-                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
-                "event_type",
+                "YEARWEEK(date - INTERVAL DAYOFWEEK(date) % 7 - 2 DAY) as year_week",
+                "count(1) as cnt_dates",
             ]
         )
             ->from($db->quoteName('#__memberportal_attendance_cell'))
             ->where("member_code = " . $db->quote($member_code))
-            ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year);
+            ->where("YEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) = " . $year)
+            ->group($db->quoteName("week_start"))
+            ->group($db->quoteName("year_week"));
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
@@ -163,16 +163,17 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select(
             [
-                'date',
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
-                "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year",
-                "event_type",
+                "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
+                "YEARWEEK(date - INTERVAL DAYOFWEEK(date) % 7 - 2 DAY) as year_week",
+                "count(1) as cnt_dates",
             ]
         )
             ->from($db->quoteName('#__memberportal_attendance_cell'))
             ->where("member_code = " . $db->quote($member_code))
             ->where("date >= " . $db->quote($start))
-            ->where("date < " . $db->quote($end));
+            ->where("date < " . $db->quote($end))
+            ->group($db->quoteName("week_start"))
+            ->group($db->quoteName("year_week"));
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();

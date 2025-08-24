@@ -170,12 +170,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
             }
         }
         foreach ($this->attd_cell_dates as $date) {
-            if ($date->event_type == "小組聚會") {
-                $present = $cell_present;
-            } else {
-                $present = $zone_present;
-            }
-            $this->attd_cell_series[$this->week_of_year_mapping[$date->week_start]] = $present;
+            $this->attd_cell_series[$this->week_of_year_mapping[$date->week_start]] = $cell_present;
         }
         $this->attd_cell_cnt = count($this->attd_cell_dates);
 
