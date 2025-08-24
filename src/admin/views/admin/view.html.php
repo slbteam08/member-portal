@@ -19,6 +19,8 @@ class MemberPortalViewAdmin extends JViewLegacy
      */
     public function display($tpl = null)
     {
+        JToolBarHelper::title(JText::_('COM_MEMBERPORTAL_ADMIN_VIEW_DEFAULT_TITLE'), 'upload');
+
         // Get data from the model
         $this->items        = $this->get('Items');
         $this->pagination    = $this->get('Pagination');

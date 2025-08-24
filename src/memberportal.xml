@@ -48,6 +48,10 @@
 		<folder>js</folder>
 	</media>
 
+	<languages folder="site/language">
+		<language tag="en-GB">en-GB/en-GB.com_memberportal.ini</language>
+	</languages>
+
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu link='index.php?option=com_memberportal'>Member Portal</menu>

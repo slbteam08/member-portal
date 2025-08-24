@@ -149,3 +149,19 @@ ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 DEFAULT COLLATE=utf8mb4_unicode_ci
 ;
+
+
+DROP TABLE IF EXISTS `#__memberportal_offering_details`;
+
+CREATE TABLE `#__memberportal_offering_details` (
+	`date` DATE NOT NULL,
+	`member_code` VARCHAR(20) NOT NULL,
+	`offering_type` VARCHAR(20) NOT NULL,
+	`offering_amount` INT(11) NOT NULL DEFAULT '0',
+	`remarks` TEXT,
+	PRIMARY KEY (`member_code`, `date`)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+DEFAULT COLLATE=utf8mb4_unicode_ci
+;
