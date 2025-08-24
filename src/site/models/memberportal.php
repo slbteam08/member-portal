@@ -111,6 +111,27 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         return $rows;
     }
 
+    public function getCellScheduleBeforeDate($end, $limit = 52)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select(
+            [
+                'year', 'week', 'week_start'
+            ]
+        )
+            ->from($db->quoteName('#__memberportal_cell_schedule'))
+            ->where("year * 100 + week < YEARWEEK(" . $db->quote($end) . " + INTERVAL 2 DAY)")
+            ->order('year desc, week desc')
+            ->setLimit($limit);
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return array_reverse($rows);
+    }
+
     public function getAttendanceCell($member_code, $year)
     {
         $db    = JFactory::getDbo();

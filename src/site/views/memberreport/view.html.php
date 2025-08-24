@@ -54,16 +54,21 @@ class MemberPortalViewMemberReport extends JViewLegacy
 
         $filterStart = date("Y-m-01", strtotime("-12 month"));
         $filterEnd = date("Y-m-01");
-        $this->numWeeks = $model->getNumWeeksInRange($filterStart, $filterEnd);
         $this->attd_ceremony_dates = $model->getAttendanceCeremonyByRange($member_code, $filterStart, $filterEnd);
         $this->attd_cell_dates = $model->getAttendanceCellByRange($member_code, $filterStart, $filterEnd);
         $this->offering_months = $model->getOfferingMonthsByRange($member_code, $filterStart, $filterEnd);
+        $this->cell_schedule = $model->getCellScheduleBeforeDate($filterEnd, 52);
+        $this->num_weeks = count($this->cell_schedule);
+        $this->no_cell_weeks = count(array_filter($this->cell_schedule, function($item) {
+            return is_null($item->week_start);
+        }));
+        $this->num_cell_weeks = $this->num_weeks - $this->no_cell_weeks;
 
         $this->attd_ceremony_cnt = count($this->attd_ceremony_dates);
-        $this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->numWeeks * 100);
+        $this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->num_weeks * 100);
 
         $this->attd_cell_cnt = count($this->attd_cell_dates);
-        $this->attd_cell_pcnt = (int)round($this->attd_cell_cnt / $this->numWeeks * 100);
+        $this->attd_cell_pcnt = (int)round($this->attd_cell_cnt / $this->num_cell_weeks * 100);
 
         $this->offering_cnt = count($this->offering_months);
         $this->offering_pcnt = (int)round($this->offering_cnt / 12 * 100);

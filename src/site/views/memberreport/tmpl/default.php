@@ -55,12 +55,12 @@ function backToSummary() {
         <tbody>
           <tr>
             <td>小組出席</td>
-            <td><?php echo $this->attd_cell_cnt; ?> / <?php echo $this->numWeeks; ?></td>
+            <td><?php echo $this->attd_cell_cnt; ?> / <?php echo $this->num_cell_weeks; ?></td>
             <td><?php echo $this->attd_cell_pcnt; ?>%</td>
           </tr>
           <tr>
             <td>崇拜出席</td>
-            <td><?php echo $this->attd_ceremony_cnt; ?> / <?php echo $this->numWeeks; ?></td>
+            <td><?php echo $this->attd_ceremony_cnt; ?> / <?php echo $this->num_weeks; ?></td>
             <td><?php echo $this->attd_ceremony_pcnt; ?>%</td>
           </tr>
           <tr>
