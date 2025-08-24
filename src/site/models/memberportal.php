@@ -270,7 +270,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         $query->select(
             [
-                "max(date) - INTERVAL DAYOFWEEK(date) % 7 DAY as latest_date"
+                "max(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as latest_date"
             ]
         )
             ->from($db->quoteName('#__memberportal_attendance_cell'));
