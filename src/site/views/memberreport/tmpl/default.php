@@ -19,6 +19,16 @@ function backToSummary() {
   padding: 4px;
   margin-bottom: 8px;
 }
+
+.total-column {
+  font-weight: bold;
+  background-color: #f8f9fa;
+}
+
+.total-column-header {
+  font-weight: bold;
+}
+
 </style>
 <div class="container-fluid user-content">
 
@@ -30,12 +40,13 @@ function backToSummary() {
   </div>
   <?php } ?>
 
-  <h3>過去12個月出席及奉獻統計</h3>
+  <span>姓名 : <?php echo $this->info->name_chi; ?></span><br>
+
+  <h3 style="margin-top: 20px;">過去12個月出席及奉獻統計</h3>
 
   <!-- detail info -->
   <div class="row user-detail">
     <div class="col-sm-6 col-8 user">
-      <span>姓名 : <?php echo $this->info->name_chi; ?></span><br>
       月份 : <?php echo $this->startMonth; ?> 至 <?php echo $this->endMonth; ?>
     </div>
   </div>
@@ -72,6 +83,47 @@ function backToSummary() {
       </table>
     </div>
   </div>
+
+  <?php if (count($this->offering_details_date_rows) > 0) { ?>
+  <br>
+
+  <h3 style="margin-top: 20px;">過去3個月奉獻明細</h3>
+
+  <div class="row user-detail">
+    <div class="col-sm-6 col-8 user">
+      奉獻月份 : <?php echo $this->startMonthOfferingDetails; ?> 至 <?php echo $this->endMonthOfferingDetails; ?>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <table class="offering-table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <?php foreach ($this->offering_types as $offering_type) { ?>
+              <th><?php echo $offering_type; ?></th>
+            <?php } ?>
+            <th class="total-column-header">合計</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($this->offering_details_date_rows as $date => $offering_details_date_row) { ?>
+            <tr>
+              <td><?php echo $date; ?></td>
+            <?php foreach ($this->offering_types as $offering_type) { ?>
+              <td><?php echo $offering_details_date_row[$offering_type]; ?></td>
+            <?php } ?>
+            <td class="total-column"><?php echo array_sum($offering_details_date_row); ?></td>
+            </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <?php } ?>
 
   <br>
 

@@ -5,6 +5,9 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
 
+// Import the encryption helper
+require_once JPATH_COMPONENT . '/helpers/encryption.php';
+
 /**
  * HTML View class for the MemberPortal Component
  *
@@ -72,6 +75,36 @@ class MemberPortalViewMemberReport extends JViewLegacy
 
         $this->offering_cnt = count($this->offering_months);
         $this->offering_pcnt = (int)round($this->offering_cnt / 12 * 100);
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // Offering details
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        $filterStartOfferingDetails = date("Y-m-01", strtotime("-3 month"));
+        $filterEndOfferingDetails = date("Y-m-01");
+        $this->offering_details = $model->getOfferingDetailsByRange($member_code, $filterStartOfferingDetails, $filterEndOfferingDetails);
+        $this->startMonthOfferingDetails = date("Y年m月", strtotime("-3 month"));
+        $this->endMonthOfferingDetails = date("Y年m月", strtotime("-1 month"));
+
+        // Unique offering types
+        $this->offering_types = array_unique(array_column($this->offering_details, 'offering_type'));
+
+        // Initialize encryption helper
+        $encryption = new MemberPortalEncryption();
+
+        // Build date rows
+        $this->offering_details_date_rows = [];
+        foreach ($this->offering_details as $offering) {
+            if (!isset($this->offering_details_date_rows[$offering->date])) {
+                $this->offering_details_date_rows[$offering->date] = [];
+            }
+
+            $decrypted_amount_val = $encryption->decryptText($offering->offering_amount);
+            $offering_amount = explode("|", $decrypted_amount_val)[2];
+            
+            $this->offering_details_date_rows[$offering->date][$offering->offering_type] = $offering_amount;
+        }
 
         // Display the view
         parent::display($tpl);

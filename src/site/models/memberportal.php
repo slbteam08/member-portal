@@ -426,4 +426,25 @@ class MemberPortalModelMemberPortal extends JModelLegacy
 
         return $rows;
     }
+
+    public function getOfferingDetailsByRange($member_code, $start, $end)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select(
+            [
+                'date', 'offering_type', 'offering_amount', 'remarks'
+            ]
+        )
+            ->from($db->quoteName('#__memberportal_offering_details'))
+            ->where("member_code = " . $db->quote($member_code))
+            ->where("date >= " . $db->quote($start))
+            ->where("date < " . $db->quote($end));
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
 }

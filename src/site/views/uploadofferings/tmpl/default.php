@@ -90,7 +90,7 @@ defined('_JEXEC') or die('Restricted Access');
                                     <td>5</td>
                                     <td>備註</td>
                                     <td>文字</td>
-                                    <td>可選的備註說明（奉獻類型為特別奉獻時使用）</td>
+                                    <td>可選的備註說明</td>
                                 </tr>
                             </tbody>
                         </table>
