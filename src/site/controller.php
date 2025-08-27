@@ -254,6 +254,7 @@ class MemberPortalController extends JControllerLegacy
 
       // Validate Offering Details Sheet
       $offeringDetailsSheet = $this->loadSheet($uploadedExcel, "奉獻記錄明細");
+      $offeringKeys = [];  // Track unique combinations of member code, date and offering type
       if (!$offeringDetailsSheet) {
         $validation_messages["奉獻記錄明細"][] = "找不到奉獻記錄明細工作表";
       } else {
@@ -263,7 +264,7 @@ class MemberPortalController extends JControllerLegacy
 
           // Check if member code is empty
           if (empty($row[1])) {
-            $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：組員編號為空";
+            $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：崇拜編碼為空";
             continue;
           }
 
@@ -273,7 +274,41 @@ class MemberPortalController extends JControllerLegacy
             $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：日期格式錯誤";
             continue;
           }
+
+          // (Member code, date, offering type) must be unique
+          $offeringKey = $row[1] . "|" . $date . "|" . $row[2];
+          if (in_array($offeringKey, $offeringKeys)) {
+            $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：重複的奉獻記錄";
+            continue;
+          }
+
+          $offeringKeys[] = $offeringKey;
         }
+      }
+
+      // Check if there are any validation errors across all sheets
+      $has_errors = false;
+      foreach ($validation_messages as $sheet => $messages) {
+          if (!empty($messages)) {
+              $has_errors = true;
+              break;
+          }
+      }
+
+      if ($has_errors) {
+          print_r("<h3>匯入驗證錯誤：</h3>");
+          foreach ($validation_messages as $sheet => $messages) {
+              if (!empty($messages)) {
+                  print_r("<h4>" . $sheet . "：</h4>");
+                  print_r("<ul>");
+                  foreach ($messages as $message) {
+                      print_r("<li>" . $message . "</li>");
+                  }
+                  print_r("</ul>");
+              }
+          }
+          print_r("<p>請修正以上錯誤後重新匯入。</p>");
+          return;
       }
 
       ///////////////////////////////////////////////////////////////////////

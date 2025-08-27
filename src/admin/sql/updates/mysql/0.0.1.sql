@@ -160,7 +160,7 @@ CREATE TABLE `#__memberportal_offering_details` (
 	`offering_amount` TEXT NOT NULL,
 	`remarks` TEXT,
 	`upload_id` INT(11) NOT NULL,
-	PRIMARY KEY (`member_code`, `date`)
+	PRIMARY KEY (`member_code`, `date`, `offering_type`)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
