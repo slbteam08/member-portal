@@ -156,6 +156,9 @@ DROP TABLE IF EXISTS `#__memberportal_offering_details`;
 CREATE TABLE `#__memberportal_offering_details` (
 	`date` DATE NOT NULL,
 	`member_code` VARCHAR(20) NOT NULL,
+	`payment_method` VARCHAR(20) NOT NULL,
+	`cheque_no` VARCHAR(20) NOT NULL,
+	`receipt_type` VARCHAR(20) NOT NULL,
 	`offering_type` VARCHAR(20) NOT NULL,
 	`offering_amount` TEXT NOT NULL,
 	`remarks` TEXT,

@@ -17,6 +17,23 @@ require_once JPATH_COMPONENT . '/helpers/encryption.php';
 class MemberPortalController extends JControllerLegacy
 {
   /**
+   * Get all sheet names from an Excel file
+   * 
+   * @param string $excelFile Path to the Excel file
+   * @return array Array of sheet names
+   */
+  private function getSheetNames($excelFile)
+  {
+    try {
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+        $worksheetNames = $reader->listWorksheetNames($excelFile);
+        return $worksheetNames;
+    } catch (\Exception $e) {
+        return [];
+    }
+  }
+
+  /**
    * Check if a sheet exists in the Excel file
    * 
    * @param string $excelFile Path to the Excel file
@@ -136,9 +153,15 @@ class MemberPortalController extends JControllerLegacy
 
     // Try to convert string dates first
     if (is_string($value)) {
-      $date = DateTime::createFromFormat('Y-m-d', trim($value));
-      if ($date !== false && $date->format('Y-m-d') === trim($value)) {
-        return $date->format('Y-m-d');
+      // Try both YYYY-mm-dd and YYYY-m-d formats
+      $formats = ['Y-m-d', 'Y-n-d'];
+      $trimmed = trim($value);
+      
+      foreach ($formats as $format) {
+          $date = DateTime::createFromFormat($format, $trimmed);
+          if ($date !== false && $date->format('Y-m-d') === $date->format($format)) {
+              return $date->format('Y-m-d'); 
+          }
       }
     }
 
@@ -253,30 +276,63 @@ class MemberPortalController extends JControllerLegacy
       ///////////////////////////////////////////////////////////////////////
 
       // Validate Offering Details Sheet
-      $offeringDetailsSheet = $this->loadSheet($uploadedExcel, "奉獻記錄明細");
+      // - Load the first sheet
+      $sheets = $this->getSheetNames($uploadedExcel);
+      $offeringDetailsSheet = $this->loadSheet($uploadedExcel, $sheets[0]);
+      // $offeringDetailsSheet = $this->loadSheet($uploadedExcel, "奉獻記錄明細");
       $offeringKeys = [];  // Track unique combinations of member code, date and offering type
+      $offeringExpectedColumns = [
+        "崇拜編碼",
+        "會員名稱",
+        "奉獻日期",
+        "付款方式",
+        "支票",
+        "收據類別",
+        "十一奉獻",
+        "感恩奉獻",
+        "經常奉獻",
+        "建堂基金",
+        "福音事工",
+        "愛鄰舍基金",
+        "特別奉獻"
+      ];
       if (!$offeringDetailsSheet) {
         $validation_messages["奉獻記錄明細"][] = "找不到奉獻記錄明細工作表";
       } else {
         $rows = $offeringDetailsSheet->toArray();
+        $header_row_found = false;
+        $header_row_idx = -1;
         foreach ($rows as $idx => $row) {
-          if ($idx == 0) continue; // Skip header row
+          if (!$header_row_found) {
+            // Look for header row first until it's found
+            if ($row[0] == $offeringExpectedColumns[0]) {
+              // Verify columns list are exactly as expected
+              if ($row === $offeringExpectedColumns) {
+                $header_row_found = true;
+                $header_row_idx = $idx;
+              } else {
+                $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：欄位列表不正確。應為：" . implode(", ", $offeringExpectedColumns);
+                break;
+              }
+            }
+            continue; // Skip header row until it's found
+          }
 
           // Check if member code is empty
-          if (empty($row[1])) {
+          if (empty($row[0])) {
             $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：崇拜編碼為空";
             continue;
           }
 
           // Parse date
-          $date = $this->parseExcelDate($row[0]);
+          $date = $this->parseExcelDate($row[2]);
           if ($date === "ERROR") {
             $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：日期格式錯誤";
             continue;
           }
 
-          // (Member code, date, offering type) must be unique
-          $offeringKey = $row[1] . "|" . $date . "|" . $row[2];
+          // (member_code, date, payment_method, cheque_no) must be unique
+          $offeringKey = $row[0] . "|" . $date . "|" . $row[2] . "|" . $row[3] . "|" . $row[4];
           if (in_array($offeringKey, $offeringKeys)) {
             $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：重複的奉獻記錄";
             continue;
@@ -324,26 +380,38 @@ class MemberPortalController extends JControllerLegacy
 
       // Import Offering Details
       $offering_details = $offeringDetailsSheet->toArray();
-      $offering_details = array_slice($offering_details, 1); // Skip header row
+      $offering_details = array_slice($offering_details, $header_row_idx + 1); // Skip header row
       $offering_details = array_unique($offering_details, SORT_REGULAR);
       $offering_details_values = [];
       $offering_details_months = []; // Track unique months
       $encryption = new MemberPortalEncryption();
 
       foreach ($offering_details as $offering_detail) {
-        $date = $this->parseExcelDate($offering_detail[0]);
+        $date = $this->parseExcelDate($offering_detail[2]);
         $month = date("Y-m-01", strtotime($date));
         if (!in_array($month, $offering_details_months)) {
           $offering_details_months[] = $month;
         }
 
-        $member_code = $offering_detail[1];
-        $offering_type = $offering_detail[2];
-        $offering_amount = $offering_detail[3];
-        $offering_amount_encrypted = $encryption->encryptText($date . "|" . $member_code . "|" . $offering_amount);
-        $remarks = $offering_detail[4];
+        $member_code = $offering_detail[0];
+        $payment_method = $offering_detail[3];
+        $cheque_no = $offering_detail[4];
+        if (!empty($cheque_no)) {
+          $payment_method = "支票";
+        }
+        $receipt_type = $offering_detail[5];
 
-        $offering_details_values[] = $db->quote($date) . ', ' . $db->quote($member_code) . ', ' . $db->quote($offering_type) . ', ' . $db->quote($offering_amount_encrypted) . ', ' . $db->quote($remarks) . ', ' . $db->quote($upload_id);
+        // Expand one Excel row to multiple database rows per offering type
+        for ($i=6; $i<count($offering_detail); $i++) {
+          if (!empty($offering_detail[$i])) {
+            $offering_type = $offeringExpectedColumns[$i];
+            $offering_amount = $offering_detail[$i];
+            $offering_amount_encrypted = $encryption->encryptText($date . "|" . $member_code . "|" . $offering_amount);
+            $remarks = "";  // Not used at the moment
+
+            $offering_details_values[] = $db->quote($date) . ', ' . $db->quote($member_code) . ', ' . $db->quote($payment_method) . ', ' . $db->quote($cheque_no) . ', ' . $db->quote($receipt_type) . ', ' . $db->quote($offering_type) . ', ' . $db->quote($offering_amount_encrypted) . ', ' . $db->quote($remarks) . ', ' . $db->quote($upload_id);
+          }
+        }
       }
 
       // Get months covered by uploaded data (Assume months are continuous)
@@ -362,7 +430,7 @@ class MemberPortalController extends JControllerLegacy
         
         // Insert data
         $query = $db->getQuery(true);
-        $columns = array('date', 'member_code', 'offering_type', 'offering_amount', 'remarks', 'upload_id');
+        $columns = array('date', 'member_code', 'payment_method', 'cheque_no', 'receipt_type', 'offering_type', 'offering_amount', 'remarks', 'upload_id');
         $query
             ->insert($db->quoteName('#__memberportal_offering_details'))
             ->columns($db->quoteName($columns))

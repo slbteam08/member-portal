@@ -87,8 +87,17 @@ class MemberPortalViewMemberReport extends JViewLegacy
         $this->startMonthOfferingDetails = date("Y年m月", strtotime("-3 month"));
         $this->endMonthOfferingDetails = date("Y年m月", strtotime("-1 month"));
 
-        // Unique offering types
-        $this->offering_types = array_unique(array_column($this->offering_details, 'offering_type'));
+        // Expected offering types
+        $this->offering_types = [
+            "十一奉獻",
+            "感恩奉獻",
+            "經常奉獻",
+            "建堂基金",
+            "福音事工",
+            "愛鄰舍基金",
+            "特別奉獻"
+        ];
+        // $this->offering_types = array_unique(array_column($this->offering_details, 'offering_type'));
 
         // Initialize encryption helper
         $encryption = new MemberPortalEncryption();

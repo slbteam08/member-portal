@@ -45,8 +45,8 @@ defined('_JEXEC') or die('Restricted Access');
                 <div class="panel-body">
                     <h4>檔案格式要求：</h4>
                     <ul>
-                        <li><strong>檔案類型：</strong> .xlsx 檔案</li>
-                        <li><strong>工作表名稱：</strong> 必須包含 "奉獻記錄明細" 工作表</li>
+                        <li><strong>檔案類型：</strong> .xlsx 或 .xls 檔案</li>
+                        <li><strong>工作表名稱：</strong>沒有限制，但必須是第一個工作表</li>
                         <li><strong>編碼格式：</strong> UTF-8</li>
                     </ul>
                     
@@ -64,33 +64,45 @@ defined('_JEXEC') or die('Restricted Access');
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td>日期</td>
-                                    <td>YYYY-MM-DD</td>
-                                    <td>奉獻日期（例如：2024-01-15）</td>
+                                    <td>崇拜編碼</td>
+                                    <td>文字</td>
+                                    <td>崇拜編碼</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td>崇拜編碼</td>
+                                    <td>會員名稱</td>
                                     <td>文字</td>
-                                    <td>崇拜編碼</td>
+                                    <td>會員名稱（暫不使用）</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td>奉獻類型</td>
-                                    <td>文字</td>
-                                    <td>奉獻項目（例如：十一奉獻、感恩奉獻）</td>
-                                </tr>
+                                    <td>奉獻日期</td>
+                                    <td>YYYY-MM-DD 或 YYYY-M-D</td>
+                                    <td>奉獻日期（例如：2024-01-15 或 2024-1-15）</td>
+                                </tr>                                
                                 <tr>
                                     <td>4</td>
-                                    <td>奉獻金額</td>
-                                    <td>數字</td>
-                                    <td>奉獻金額（例如：1000.00）</td>
+                                    <td>付款方式</td>
+                                    <td>文字</td>
+                                    <td>付款方式（例如：現金、支票）</td>
                                 </tr>
                                 <tr>
                                     <td>5</td>
-                                    <td>備註</td>
+                                    <td>支票</td>
                                     <td>文字</td>
-                                    <td>可選的備註說明</td>
+                                    <td>支票號碼（如果付款方式為支票）</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>收據類別</td>
+                                    <td>文字</td>
+                                    <td>"全年"或"獨立"</td>
+                                </tr>
+                                <tr>
+                                    <td>7 - 13</td>
+                                    <td>奉獻金額</td>
+                                    <td>數字</td>
+                                    <td>以下項目的奉獻金額（順序）：<br>十一奉獻、感恩奉獻、經常奉獻、建堂基金、福音事工、愛鄰舍基金、特別奉獻</td>
                                 </tr>
                             </tbody>
                         </table>

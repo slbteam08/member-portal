@@ -114,7 +114,7 @@ function backToSummary() {
             <tr>
               <td><?php echo $date; ?></td>
             <?php foreach ($this->offering_types as $offering_type) { ?>
-              <td><?php echo $offering_details_date_row[$offering_type]; ?></td>
+              <td><?php echo $offering_details_date_row[$offering_type] ?? ""; ?></td>
             <?php } ?>
             <td class="total-column"><?php echo array_sum($offering_details_date_row); ?></td>
             </tr>
