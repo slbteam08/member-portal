@@ -25,6 +25,7 @@ class MemberPortalViewMemberReport extends JViewLegacy
     public function display($tpl = null)
     {
         $input = Factory::getApplication()->input;
+        $model = JModelLegacy::getInstance('MemberPortal', 'MemberPortalModel');
 
         // Determine member code
         $user = Factory::getUser();
@@ -48,7 +49,35 @@ class MemberPortalViewMemberReport extends JViewLegacy
             $member_code = $user->username;
         }
 
-        $model = JModelLegacy::getInstance('MemberPortal', 'MemberPortalModel');
+        // Pastor view
+        $view_member_code = $input->get("view_member_code"); 
+        if (!is_null($view_member_code)) {
+            // Check if logged in user has pastor view permission
+            $pastor_info = $model->getMemberInfo($member_code);
+            if (strpos($pastor_info->cell_role, "主任牧師") !== false) {
+                // No filters
+            } elseif (strpos($pastor_info->cell_role, "區牧") !== false) {
+                $district = $pastor_info->cell_group_name;
+            } elseif (strpos($pastor_info->cell_role, "區長") !== false) {
+                $zone = $pastor_info->cell_group_name;
+            } elseif (strpos($pastor_info->cell_role, "組長") !== false) {
+                $cell = $pastor_info->cell_group_name;
+            } else {
+                $cell = "Invalid";
+                $zone = "Invalid";
+                $district = "Invalid";
+            }
+            $pastor_tree = $model->getLatestCellTree($district, $zone, $cell, $view_member_code);
+            if (count($pastor_tree) > 0) {
+                $this->pastor_view_mode = true;
+                $this->pastor_info = $pastor_info;
+                $member_code = $view_member_code;
+            } else {
+                echo  "<span style='color: red'>錯誤：沒有權限檢視該會友資料 (崇拜編碼: " . $view_member_code . ")</span>";
+                return;
+            }
+        }
+
         $this->info = $model->getMemberInfo($member_code);
 
         // Report data
@@ -81,38 +110,41 @@ class MemberPortalViewMemberReport extends JViewLegacy
         // Offering details
         ///////////////////////////////////////////////////////////////////////////////////////////
 
-        $filterStartOfferingDetails = date("Y-m-01", strtotime("-3 month"));
-        $filterEndOfferingDetails = date("Y-m-01");
-        $this->offering_details = $model->getOfferingDetailsByRange($member_code, $filterStartOfferingDetails, $filterEndOfferingDetails);
-        $this->startMonthOfferingDetails = date("Y年m月", strtotime("-3 month"));
-        $this->endMonthOfferingDetails = date("Y年m月", strtotime("-1 month"));
+        // Only show offering details for the member herself
+        if (!$this->pastor_view_mode) {
+            $filterStartOfferingDetails = date("Y-m-01", strtotime("-3 month"));
+            $filterEndOfferingDetails = date("Y-m-01");
+            $this->offering_details = $model->getOfferingDetailsByRange($member_code, $filterStartOfferingDetails, $filterEndOfferingDetails);
+            $this->startMonthOfferingDetails = date("Y年m月", strtotime("-3 month"));
+            $this->endMonthOfferingDetails = date("Y年m月", strtotime("-1 month"));
 
-        // Expected offering types
-        $this->offering_types = [
-            "十一奉獻",
-            "感恩奉獻",
-            "經常奉獻",
-            "建堂基金",
-            "福音事工",
-            "愛鄰舍基金",
-            "特別奉獻"
-        ];
-        // $this->offering_types = array_unique(array_column($this->offering_details, 'offering_type'));
+            // Expected offering types
+            $this->offering_types = [
+                "十一奉獻",
+                "感恩奉獻",
+                "經常奉獻",
+                "建堂基金",
+                "福音事工",
+                "愛鄰舍基金",
+                "特別奉獻"
+            ];
+            // $this->offering_types = array_unique(array_column($this->offering_details, 'offering_type'));
 
-        // Initialize encryption helper
-        $encryption = new MemberPortalEncryption();
+            // Initialize encryption helper
+            $encryption = new MemberPortalEncryption();
 
-        // Build date rows
-        $this->offering_details_date_rows = [];
-        foreach ($this->offering_details as $offering) {
-            if (!isset($this->offering_details_date_rows[$offering->date])) {
-                $this->offering_details_date_rows[$offering->date] = [];
+            // Build date rows
+            $this->offering_details_date_rows = [];
+            foreach ($this->offering_details as $offering) {
+                if (!isset($this->offering_details_date_rows[$offering->date])) {
+                    $this->offering_details_date_rows[$offering->date] = [];
+                }
+
+                $decrypted_amount_val = $encryption->decryptText($offering->offering_amount);
+                $offering_amount = explode("|", $decrypted_amount_val)[2];
+                
+                $this->offering_details_date_rows[$offering->date][$offering->offering_type] = $offering_amount;
             }
-
-            $decrypted_amount_val = $encryption->decryptText($offering->offering_amount);
-            $offering_amount = explode("|", $decrypted_amount_val)[2];
-            
-            $this->offering_details_date_rows[$offering->date][$offering->offering_type] = $offering_amount;
         }
 
         // Display the view

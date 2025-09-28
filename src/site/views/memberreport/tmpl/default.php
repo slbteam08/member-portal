@@ -20,6 +20,24 @@ function backToSummary() {
   margin-bottom: 8px;
 }
 
+.pastor_mode_banner {
+  text-align: center;
+  background: #007b52;
+  color: white;
+  font-weight: bold;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
+.pastor_mode_banner_gray {
+  text-align: center;
+  background: #757575;
+  color: white;
+  font-weight: bold;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
 .total-column {
   font-weight: bold;
   background-color: #f8f9fa;
@@ -36,6 +54,15 @@ function backToSummary() {
   <div class="row">
     <div class="col-12 admin_mode_banner">
       管理員扮演會友模式 - 崇拜編碼：<?php echo $this->impersonate_member_code; ?>
+    </div>
+  </div>
+  <?php } ?>
+
+  <?php if ($this->pastor_view_mode) { ?>
+  <div class="row">
+    <div class="col-12 pastor_mode_banner">
+      牧者檢視模式
+      <br>牧者：<?php echo $this->pastor_info->name_chi; ?> - 顯示組員：<?php echo $this->info->name_chi; ?>
     </div>
   </div>
   <?php } ?>
@@ -84,7 +111,14 @@ function backToSummary() {
     </div>
   </div>
 
-  <?php if (count($this->offering_details_date_rows) > 0) { ?>
+  <?php if ($this->pastor_view_mode) { ?>
+  <br>
+  <div class="row">
+    <div class="col-12 pastor_mode_banner_gray">
+      牧者檢視模式 - 不顯示奉獻明細
+    </div>
+  </div>
+  <?php } elseif (count($this->offering_details_date_rows) > 0) { ?>
   <br>
 
   <h3 style="margin-top: 20px;">過去3個月奉獻明細</h3>

@@ -379,6 +379,7 @@ function goToReport() {
   <div class="row">
     <div class="col-12 pastor_mode_banner">
       牧者檢視模式
+      <br>牧者：<?php echo $this->pastor_info->name_chi; ?> - 顯示組員：<?php echo $this->info->name_chi; ?>
     </div>
   </div>
   <?php } ?>

@@ -80,6 +80,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
             $pastor_tree = $model->getLatestCellTree($district, $zone, $cell, $view_member_code);
             if (count($pastor_tree) > 0) {
                 $this->pastor_view_mode = true;
+                $this->pastor_info = $pastor_info;
                 $member_code = $view_member_code;
             } else {
                 echo  "<span style='color: red'>錯誤：沒有權限檢視該會友資料 (崇拜編碼: " . $view_member_code . ")</span>";
