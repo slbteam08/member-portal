@@ -331,14 +331,14 @@ class MemberPortalController extends JControllerLegacy
             continue;
           }
 
+          // 2025-09-29: Suspend duplication check
           // (member_code, date, payment_method, cheque_no) must be unique
-          $offeringKey = $row[0] . "|" . $date . "|" . $row[2] . "|" . $row[3] . "|" . $row[4];
-          if (in_array($offeringKey, $offeringKeys)) {
-            $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：重複的奉獻記錄";
-            continue;
-          }
-
-          $offeringKeys[] = $offeringKey;
+          // $offeringKey = $row[0] . "|" . $date . "|" . $row[2] . "|" . $row[3] . "|" . $row[4];
+          // if (in_array($offeringKey, $offeringKeys)) {
+          //   $validation_messages["奉獻記錄明細"][] = "第 " . ($idx + 1) . " 行：重複的奉獻記錄";
+          //   continue;
+          // }
+          // $offeringKeys[] = $offeringKey;
         }
       }
 
