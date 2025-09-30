@@ -154,6 +154,7 @@ DEFAULT COLLATE=utf8mb4_unicode_ci
 DROP TABLE IF EXISTS `#__memberportal_offering_details`;
 
 CREATE TABLE `#__memberportal_offering_details` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`date` DATE NOT NULL,
 	`member_code` VARCHAR(20) NOT NULL,
 	`payment_method` VARCHAR(20) NOT NULL,
@@ -163,7 +164,7 @@ CREATE TABLE `#__memberportal_offering_details` (
 	`offering_amount` TEXT NOT NULL,
 	`remarks` TEXT,
 	`upload_id` INT(11) NOT NULL,
-	PRIMARY KEY (`member_code`, `date`, `offering_type`)
+	PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
