@@ -4,6 +4,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Uri\Uri;
 
 // Import the encryption helper
 require_once JPATH_COMPONENT . '/helpers/encryption.php';
@@ -81,11 +82,28 @@ class MemberPortalViewMemberReport extends JViewLegacy
         $this->info = $model->getMemberInfo($member_code);
 
         // Report data
-        $this->startMonth = date("Y年m月", strtotime("-12 month"));
-        $this->endMonth = date("Y年m月", strtotime("-1 month"));
+        $this->latest_data_date = $model->getLatestDataDate();
+        if (is_null($this->latest_data_date)) {
+            $this->latest_month = "";
+            $this->latest_week = date("W");
+            $this->latest_month_num = date("n");
+        } else {
+            $date_obj = \DateTime::createFromFormat("Y-m-d", $this->latest_data_date);
+            $this->latest_month = $date_obj->format("Y 年 n 月");
+            $this->latest_week = $date_obj->format("W");
+            $this->latest_month_num = $date_obj->format("n");
+        }
 
-        $filterStart = date("Y-m-01", strtotime("-12 month"));
-        $filterEnd = date("Y-m-01");
+        $endDate = new DateTime($this->latest_data_date);
+        $startDate = clone $endDate;
+        $startDate->modify('-11 months');
+        $this->startMonth = $startDate->format('Y年m月');
+        $this->endMonth = $endDate->format('Y年m月');
+
+        $endDateForFilter = clone $endDate;
+        $endDateForFilter->modify('+1 month'); // End date filter is exclusive, so we add 1 month
+        $filterStart = $startDate->format('Y-m-01');
+        $filterEnd = $endDateForFilter->format('Y-m-01');
         $this->attd_ceremony_dates = $model->getAttendanceCeremonyByRange($member_code, $filterStart, $filterEnd);
         $this->attd_cell_dates = $model->getAttendanceCellByRange($member_code, $filterStart, $filterEnd);
         $this->offering_months = $model->getOfferingMonthsByRange($member_code, $filterStart, $filterEnd);
@@ -112,11 +130,21 @@ class MemberPortalViewMemberReport extends JViewLegacy
 
         // Only show offering details for the member herself
         if (!$this->pastor_view_mode) {
-            $filterStartOfferingDetails = date("Y-m-01", strtotime("-3 month"));
-            $filterEndOfferingDetails = date("Y-m-01");
+            $startDateOfferingDetails = new DateTime();
+            $currentMonth = (int)$startDateOfferingDetails->format('n');
+            if ($currentMonth < 4) {
+                $startDateOfferingDetails->modify('last year');
+            }
+            $startDateOfferingDetails->setDate(
+                $startDateOfferingDetails->format('Y'),
+                4,
+                1
+            );
+            $filterStartOfferingDetails = $startDateOfferingDetails->format('Y-m-01');
+            $filterEndOfferingDetails = $endDateForFilter->format('Y-m-01');
             $this->offering_details = $model->getOfferingDetailsByRange($member_code, $filterStartOfferingDetails, $filterEndOfferingDetails);
-            $this->startMonthOfferingDetails = date("Y年m月", strtotime("-3 month"));
-            $this->endMonthOfferingDetails = date("Y年m月", strtotime("-1 month"));
+            $this->startMonthOfferingDetails = $startDateOfferingDetails->format('Y年m月');
+            $this->endMonthOfferingDetails = $endDate->format('Y年m月');
 
             // Expected offering types
             $this->offering_types = [
@@ -146,6 +174,22 @@ class MemberPortalViewMemberReport extends JViewLegacy
                 $this->offering_details_date_rows[$offering->date][$offering->offering_type] = $offering_amount;
             }
         }
+
+        // Set up media paths
+        $component_name = $input->get('option');
+        $media_base = Uri::base() . "media/" . $component_name;
+        $this->images_path = $media_base . "/images";
+        $this->js_path = $media_base . "/js";
+        $this->css_path = $media_base . "/css";
+
+        // Add JS and CSS to document
+        $document = Factory::getDocument();
+        $document->addScript($this->js_path . "/bootstrap.bundle.min.js");
+        $document->addScript("https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js");
+        $document->addScript("https://cdn.jsdelivr.net/npm/apexcharts");
+        $document->addScript("https://cdn.jsdelivr.net/npm/vue-apexcharts");
+        $document->addStyleSheet($this->css_path . "/bootstrap.min.css");
+        $document->addStyleSheet($this->css_path . "/styles.css");
 
         // Display the view
         parent::display($tpl);

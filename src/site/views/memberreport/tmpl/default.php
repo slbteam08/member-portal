@@ -47,6 +47,70 @@ function backToSummary() {
   font-weight: bold;
 }
 
+.user-content {
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 20px;
+  max-width: 1020px;
+}
+
+.user-content img {
+  width: 100%;
+}
+
+.user {
+  font-size: 14px;
+  color: #707070;
+}
+
+.user span {
+  font-size: 18px;
+  color: #707070;
+}
+
+.user-info {
+  padding: 20px;
+}
+
+.row div:first-child {
+  /*  padding: 10px;  */
+}
+
+.update-info {
+  font-size: 12px;
+  text-align: right;
+  color: #aaaaaa;
+  margin-bottom: 12px;
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+  .user-content {
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 20px;
+  }
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
+  .user-content {
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 20px;
+  }
+}
+
+/* iPads (landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
+  /* Styles */
+}
+
+/* iPads (portrait) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
+  /* Styles */
+}
+
 </style>
 <div class="container-fluid user-content">
 
@@ -67,13 +131,26 @@ function backToSummary() {
   </div>
   <?php } ?>
 
-  <span>姓名 : <?php echo $this->info->name_chi; ?></span><br>
+  <div class="row user-info">
+    <div class="col-sm-1 col-4"><img src="<?php echo $this->images_path; ?>/avatar.png" /> </div>
+    <div class="col-sm-6 col-8 user">
+      <span>歡迎 : <?php echo $this->info->name_chi; ?> </span>
+      <br>身份 : <?php echo $this->info->cell_role; ?>
+      <br>會友分類 : <?php echo $this->info->member_category; ?>
+    </div>
+    <div class="col-sm-5 col-12">
+      <div class="update-info">
+        以下資料最新數據月份 : <?php echo $this->latest_month; ?>
+        <br>（每月大約第二個星期更新）
+      </div>
+    </div>
+  </div>
 
   <h3 style="margin-top: 20px;">過去12個月出席及奉獻統計</h3>
 
   <!-- detail info -->
   <div class="row user-detail">
-    <div class="col-sm-6 col-8 user">
+    <div class="col-12 user">
       月份 : <?php echo $this->startMonth; ?> 至 <?php echo $this->endMonth; ?>
     </div>
   </div>
@@ -81,7 +158,7 @@ function backToSummary() {
   <br>
 
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-12">
       <table>
         <thead>
           <tr>
@@ -121,10 +198,10 @@ function backToSummary() {
   <?php } elseif (count($this->offering_details_date_rows) > 0) { ?>
   <br>
 
-  <h3 style="margin-top: 20px;">過去3個月奉獻明細</h3>
+  <h3 style="margin-top: 20px;">本財政年度奉獻明細</h3>
 
   <div class="row user-detail">
-    <div class="col-sm-6 col-8 user">
+    <div class="col-12 user">
       奉獻月份 : <?php echo $this->startMonthOfferingDetails; ?> 至 <?php echo $this->endMonthOfferingDetails; ?>
     </div>
   </div>
@@ -132,7 +209,7 @@ function backToSummary() {
   <br>
 
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-12">
       <table class="offering-table">
         <thead>
           <tr>
