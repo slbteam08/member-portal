@@ -35,3 +35,5 @@ defined('_JEXEC') or die('Restricted Access');
         </tbody>
     </table>
 </form>
+
+<a href="index.php?option=com_memberportal&task=downloadMemberStatusExcel" class="btn btn-primary" style="margin: 8px">下載會員狀態 Excel</a>

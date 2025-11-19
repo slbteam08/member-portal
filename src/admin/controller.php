@@ -1020,4 +1020,142 @@ class MemberPortalController extends JControllerLegacy
             print_r($e);
         }
     }
+
+    /**
+     * Streams member status Excel to the browser.
+     *
+     * @return void
+     */
+    public function downloadMemberStatusExcel()
+    {
+        require_once JPATH_COMPONENT_SITE . DS . 'models' . DS . 'memberportal.php';
+        $site_model = JModelLegacy::getInstance('MemberPortal', 'MemberPortalModel');
+        $model = JModelLegacy::getInstance('MemberStatus', 'MemberPortalModel');
+
+        $latest_data_date = $site_model->getLatestDataDate();
+        if (is_null($latest_data_date)) {
+            $latest_month = "";
+            $latest_week = date("W");
+            $latest_month_num = date("n");
+        } else {
+            $date_obj = \DateTime::createFromFormat("Y-m-d", $latest_data_date);
+            $latest_month = $date_obj->format("Y 年 n 月");
+            $latest_week = $date_obj->format("W");
+            $latest_month_num = $date_obj->format("n");
+        }
+
+        $endDate = new DateTime($latest_data_date);
+        $startDate = clone $endDate;
+        $startDate->modify('-11 months');
+        $startMonth = $startDate->format('Y年m月');
+        $endMonth = $endDate->format('Y年m月');
+
+        $endDateForFilter = clone $endDate;
+        $endDateForFilter->modify('+1 month'); // End date filter is exclusive, so we add 1 month
+        $filterStart = $startDate->format('Y-m-01');
+        $filterEnd = $endDateForFilter->format('Y-m-01');
+
+        $members = $model->getAllMembers();
+        $attd_ceremony_dates = $model->getAttendanceCeremonyByRange($filterStart, $filterEnd);
+        $attd_cell_dates = $model->getAttendanceCellByRange($filterStart, $filterEnd);
+        $offering_months = $model->getOfferingMonthsByRange($filterStart, $filterEnd);
+        $cell_schedule = $site_model->getCellScheduleBeforeDate($filterEnd, 52);
+        $num_weeks = count($cell_schedule);
+        $no_cell_weeks = count(array_filter($cell_schedule, function($item) {
+            return is_null($item->week_start);
+        }));
+        $num_cell_weeks = $num_weeks - $no_cell_weeks;
+
+        $member_status = [];
+        foreach ($members as $member) {
+            $attd_ceremony_cnt = $attd_ceremony_dates[$member->member_code]->num_weeks;
+            $attd_ceremony_pcnt = (int)round($attd_ceremony_cnt / $num_weeks * 100);
+            $attd_cell_cnt = $attd_cell_dates[$member->member_code]->num_weeks;
+            $attd_cell_pcnt = (int)round($attd_cell_cnt / $num_cell_weeks * 100);
+            $offering_cnt = $offering_months[$member->member_code]->num_months;
+            $offering_pcnt = (int)round($offering_cnt / 12 * 100);
+
+            if ($member->member_category == "") {
+                $new_member_category = $member->member_category;
+            } elseif ($attd_ceremony_pcnt >= 75 && $attd_cell_pcnt >= 75 && $offering_pcnt >= 75) {
+                $new_member_category = "責任會友";
+            } else {
+                $new_member_category = "友誼會友";
+            }
+            
+            $member_status[$member->member_code] = [
+                'member_code' => $member->member_code,
+                'name_chi' => $member->name_chi,
+                'attd_ceremony_cnt' => $attd_ceremony_cnt,
+                'attd_ceremony_base_weeks' => $num_weeks,
+                'attd_ceremony_pcnt' => $attd_ceremony_pcnt,
+                'attd_cell_cnt' => $attd_cell_cnt,
+                'attd_cell_base_weeks' => $num_cell_weeks,
+                'attd_cell_pcnt' => $attd_cell_pcnt,
+                'offering_cnt' => $offering_cnt,
+                'offering_base_months' => 12,
+                'offering_pcnt' => $offering_pcnt,
+                'member_category' => $member->member_category,
+                'new_member_category' => $new_member_category,
+            ];
+        }
+
+        // Build spreadsheet
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle($startMonth . " - " . $endMonth);
+
+        // Set Column Titles
+        $sheet->setCellValue('A1', '崇拜編碼');
+        $sheet->setCellValue('B1', '姓名');
+        $sheet->setCellValue('C1', '出席崇拜次數');
+        $sheet->setCellValue('D1', '出席崇拜基數週數');
+        $sheet->setCellValue('E1', '出席崇拜百分比');
+        $sheet->setCellValue('F1', '出席小組次數');
+        $sheet->setCellValue('G1', '出席小組基數週數');
+        $sheet->setCellValue('H1', '出席小組百分比');
+        $sheet->setCellValue('I1', '奉獻次數');
+        $sheet->setCellValue('J1', '奉獻基數月數');
+        $sheet->setCellValue('K1', '奉獻百分比');
+        $sheet->setCellValue('L1', '會友分類');
+        $sheet->setCellValue('M1', '新會友分類');
+
+        // Set Data
+        $row = 2;
+        foreach ($member_status as $member_code => $member) {
+            $sheet->setCellValue('A' . $row, $member["member_code"]);
+            $sheet->setCellValue('B' . $row, $member["name_chi"]);
+            $sheet->setCellValue('C' . $row, $member["attd_ceremony_cnt"]);
+            $sheet->setCellValue('D' . $row, $member["attd_ceremony_base_weeks"]);
+            $sheet->setCellValue('E' . $row, $member["attd_ceremony_pcnt"]);
+            $sheet->setCellValue('F' . $row, $member["attd_cell_cnt"]);
+            $sheet->setCellValue('G' . $row, $member["attd_cell_base_weeks"]);
+            $sheet->setCellValue('H' . $row, $member["attd_cell_pcnt"]);
+            $sheet->setCellValue('I' . $row, $member["offering_cnt"]);
+            $sheet->setCellValue('J' . $row, $member["offering_base_months"]);
+            $sheet->setCellValue('K' . $row, $member["offering_pcnt"]);
+            $sheet->setCellValue('L' . $row, $member["member_category"]);
+            $sheet->setCellValue('M' . $row, $member["new_member_category"]);
+            $row++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        // Prepare download headers
+        $app = JFactory::getApplication();
+        $filename = sprintf('member_status_%s.xlsx', JFactory::getDate()->format('Ymd_His'));
+
+        $app->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true);
+        $app->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"', true);
+        $app->setHeader('Cache-Control', 'max-age=0', true);
+        $app->sendHeaders();
+
+        // Ensure no extra output corrupts the Excel file
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        $writer->save('php://output');
+        jexit();
+    }
 }
