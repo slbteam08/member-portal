@@ -287,6 +287,17 @@ p {
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
   /* Styles */
 }
+
+.report-link {
+    padding: 10px;
+    background-color: #ffffff;
+    width: fit-content;
+    margin: auto;
+    border-radius: 10px;
+    border: solid 2px #007fff;
+    filter: drop-shadow(5px 5px 4px #007fff50);
+    margin-bottom: 20px;
+}
 </style>
 
 <script>
