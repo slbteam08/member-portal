@@ -553,9 +553,9 @@ new Vue({
     series: [{
       name: "Series 1",
       data: [
-        <?php echo $this->attd_ceremony_pcnt; ?>,
-        <?php echo $this->attd_cell_pcnt; ?>,
-        <?php echo $this->offering_pcnt; ?>,
+        <?php echo $this->donut_attd_ceremony_pcnt; ?>,
+        <?php echo $this->donut_attd_cell_pcnt; ?>,
+        <?php echo $this->donut_offering_pcnt; ?>,
       ]
     }],
     chartOptions: {

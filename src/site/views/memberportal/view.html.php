@@ -181,9 +181,39 @@ class MemberPortalViewMemberPortal extends JViewLegacy
             $this->offering_series[$month->month] = $did_offering;
         }
         $this->offering_cnt = count($this->offering_months);
-        $this->offering_pcnt = (int)round($this->offering_cnt / $this->current_month * 100);
 
-        // Attendance percentage
+        // Percentage according to last 12 months
+        $endDate = new DateTime($this->latest_data_date);
+        $startDate = clone $endDate;
+        $startDate->modify('-11 months');
+        $this->startMonth = $startDate->format('Y年m月');
+        $this->endMonth = $endDate->format('Y年m月');
+
+        $endDateForFilter = clone $endDate;
+        $endDateForFilter->modify('+1 month'); // End date filter is exclusive, so we add 1 month
+        $filterStart = $startDate->format('Y-m-01');
+        $filterEnd = $endDateForFilter->format('Y-m-01');
+        $this->donut_attd_ceremony_dates = $model->getAttendanceCeremonyByRange($member_code, $filterStart, $filterEnd);
+        $this->donut_attd_cell_dates = $model->getAttendanceCellByRange($member_code, $filterStart, $filterEnd);
+        $this->donut_offering_months = $model->getOfferingMonthsByRange($member_code, $filterStart, $filterEnd);
+        $this->donut_cell_schedule = $model->getCellScheduleBeforeDate($filterEnd, 52);
+        $this->donut_num_weeks = count($this->donut_cell_schedule);
+        $this->donut_no_cell_weeks = count(array_filter($this->donut_cell_schedule, function($item) {
+            return is_null($item->week_start);
+        }));
+        $this->donut_num_cell_weeks = $this->donut_num_weeks - $this->donut_no_cell_weeks;
+
+        $this->donut_attd_ceremony_cnt = count($this->donut_attd_ceremony_dates);
+        $this->donut_attd_ceremony_pcnt = (int)round($this->donut_attd_ceremony_cnt / $this->donut_num_weeks * 100);
+
+        $this->donut_attd_cell_cnt = count($this->donut_attd_cell_dates);
+        $this->donut_attd_cell_pcnt = (int)round($this->donut_attd_cell_cnt / $this->donut_num_cell_weeks * 100);
+
+        $this->donut_offering_cnt = count($this->donut_offering_months);
+        $this->donut_offering_pcnt = (int)round($this->donut_offering_cnt / 12 * 100);
+
+        // Attendance percentage (Legacy)
+        $this->offering_pcnt = (int)round($this->offering_cnt / $this->current_month * 100);
         $this->attd_ceremony_pcnt = (int)round($this->attd_ceremony_cnt / $this->current_week * 100);
         $this->attd_cell_pcnt = (int)round($this->attd_cell_cnt / ($this->current_week - $this->no_cell_weeks) * 100);
 
