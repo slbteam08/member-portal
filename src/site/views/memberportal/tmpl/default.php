@@ -395,7 +395,7 @@ function goToReport() {
     <div class="col-sm-5 col-12">
       <div class="update-info">
         以下資料最新數據月份 : <?php echo $this->latest_month; ?>
-        <br>（每月大約第二個星期更新）
+        <br>（每月大約第三個星期更新）
       </div>
       <div class="year-select-container">
         顯示數據年份：
