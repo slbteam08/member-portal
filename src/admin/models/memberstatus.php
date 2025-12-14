@@ -39,7 +39,7 @@ class MemberPortalModelMemberStatus extends JModelLegacy
     $query->select(
       [
         'member_code',
-        'count(distinct YEARWEEK(date + INTERVAL 2 DAY)) as num_weeks'
+        'count(distinct YEARWEEK(date + INTERVAL 1 DAY)) as num_weeks'
       ]
     )
       ->from($db->quoteName('#__memberportal_attendance_ceremony'))
@@ -61,7 +61,7 @@ class MemberPortalModelMemberStatus extends JModelLegacy
     $query->select(
       [
         'member_code',
-        'count(distinct YEARWEEK(date + INTERVAL 2 DAY)) as num_weeks'
+        'count(distinct YEARWEEK(date + INTERVAL 1 DAY)) as num_weeks'
       ]
     )
       ->from($db->quoteName('#__memberportal_attendance_cell'))

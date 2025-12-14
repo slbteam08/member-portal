@@ -55,7 +55,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             [
                 'date',
                 "date - INTERVAL DAYOFWEEK(date) % 7 DAY as week_start",
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
+                "YEARWEEK(date + INTERVAL 1 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ]
         )
@@ -77,7 +77,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query->select(
             [
                 'date',
-                "YEARWEEK(date + INTERVAL 2 DAY) as year_week",
+                "YEARWEEK(date + INTERVAL 1 DAY) as year_week",
                 "WEEKOFYEAR(date - INTERVAL DAYOFWEEK(date) % 7 DAY) as week_of_year"
             ]
         )
@@ -122,7 +122,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
             ]
         )
             ->from($db->quoteName('#__memberportal_cell_schedule'))
-            ->where("year * 100 + week < YEARWEEK(" . $db->quote($end) . " + INTERVAL 2 DAY)")
+            ->where("year * 100 + week < YEARWEEK(" . $db->quote($end) . " + INTERVAL 1 DAY)")
             ->order('year desc, week desc')
             ->setLimit($limit);
 
