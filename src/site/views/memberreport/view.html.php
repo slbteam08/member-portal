@@ -165,13 +165,26 @@ class MemberPortalViewMemberReport extends JViewLegacy
             $this->offering_details_date_rows = [];
             foreach ($this->offering_details as $offering) {
                 if (!isset($this->offering_details_date_rows[$offering->date])) {
-                    $this->offering_details_date_rows[$offering->date] = [];
+                    $this->offering_details_date_rows[$offering->date] = [[]];  // One date may have multiple rows
                 }
 
                 $decrypted_amount_val = $encryption->decryptText($offering->offering_amount);
                 $offering_amount = explode("|", $decrypted_amount_val)[2];
-                
-                $this->offering_details_date_rows[$offering->date][$offering->offering_type] = $offering_amount;
+
+                // Assign the entry to the first date row without the target offering type
+                $assigned = false;
+                foreach ($this->offering_details_date_rows[$offering->date] as $date_row_idx => $date_row) {
+                    if (!isset($date_row[$offering->offering_type])) {
+                        $this->offering_details_date_rows[$offering->date][$date_row_idx][$offering->offering_type] = $offering_amount;
+                        $assigned = true;
+                        break;
+                    }
+                }
+
+                // If the offering type is not set, add a new row
+                if (!$assigned) {
+                    $this->offering_details_date_rows[$offering->date][] = [$offering->offering_type => $offering_amount];
+                }
             }
         }
 

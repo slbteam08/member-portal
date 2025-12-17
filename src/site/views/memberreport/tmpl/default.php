@@ -221,14 +221,16 @@ function backToSummary() {
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($this->offering_details_date_rows as $date => $offering_details_date_row) { ?>
-            <tr>
-              <td><?php echo $date; ?></td>
-            <?php foreach ($this->offering_types as $offering_type) { ?>
-              <td><?php echo $offering_details_date_row[$offering_type] ?? ""; ?></td>
+          <?php foreach ($this->offering_details_date_rows as $date => $offering_details_date_rows) { ?>
+            <?php foreach ($offering_details_date_rows as $offering_details_date_row) { ?>
+              <tr>
+                <td><?php echo $date; ?></td>
+              <?php foreach ($this->offering_types as $offering_type) { ?>
+                <td><?php echo $offering_details_date_row[$offering_type] ?? ""; ?></td>
+              <?php } ?>
+              <td class="total-column"><?php echo array_sum($offering_details_date_row); ?></td>
+              </tr>
             <?php } ?>
-            <td class="total-column"><?php echo array_sum($offering_details_date_row); ?></td>
-            </tr>
           <?php } ?>
         </tbody>
       </table>
