@@ -381,7 +381,6 @@ class MemberPortalController extends JControllerLegacy
       // Import Offering Details
       $offering_details = $offeringDetailsSheet->toArray();
       $offering_details = array_slice($offering_details, $header_row_idx + 1); // Skip header row
-      $offering_details = array_unique($offering_details, SORT_REGULAR);
       $offering_details_values = [];
       $offering_details_months = []; // Track unique months
       $encryption = new MemberPortalEncryption();
