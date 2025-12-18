@@ -164,6 +164,7 @@ CREATE TABLE `#__memberportal_offering_details` (
 	`offering_amount` TEXT NOT NULL,
 	`remarks` TEXT,
 	`upload_id` INT(11) NOT NULL,
+	`line` INT(11) NOT NULL,
 	PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB

@@ -386,7 +386,8 @@ class MemberPortalController extends JControllerLegacy
       $offering_details_months = []; // Track unique months
       $encryption = new MemberPortalEncryption();
 
-      foreach ($offering_details as $offering_detail) {
+      foreach ($offering_details as $idx => $offering_detail) {
+        $line = $idx + $header_row_idx + 2;  // Line number
         $date = $this->parseExcelDate($offering_detail[2]);
         $month = date("Y-m-01", strtotime($date));
         if (!in_array($month, $offering_details_months)) {
@@ -409,7 +410,20 @@ class MemberPortalController extends JControllerLegacy
             $offering_amount_encrypted = $encryption->encryptText($date . "|" . $member_code . "|" . $offering_amount);
             $remarks = "";  // Not used at the moment
 
-            $offering_details_values[] = $db->quote($date) . ', ' . $db->quote($member_code) . ', ' . $db->quote($payment_method) . ', ' . $db->quote($cheque_no) . ', ' . $db->quote($receipt_type) . ', ' . $db->quote($offering_type) . ', ' . $db->quote($offering_amount_encrypted) . ', ' . $db->quote($remarks) . ', ' . $db->quote($upload_id);
+            $values = [
+              $db->quote($date),
+              $db->quote($member_code),
+              $db->quote($payment_method),
+              $db->quote($cheque_no),
+              $db->quote($receipt_type),
+              $db->quote($offering_type),
+              $db->quote($offering_amount_encrypted),
+              $db->quote($remarks),
+              $db->quote($upload_id),
+              $db->quote($line),
+            ];
+
+            $offering_details_values[] = implode(", ", $values);
           }
         }
       }
@@ -430,7 +444,7 @@ class MemberPortalController extends JControllerLegacy
         
         // Insert data
         $query = $db->getQuery(true);
-        $columns = array('date', 'member_code', 'payment_method', 'cheque_no', 'receipt_type', 'offering_type', 'offering_amount', 'remarks', 'upload_id');
+        $columns = array('date', 'member_code', 'payment_method', 'cheque_no', 'receipt_type', 'offering_type', 'offering_amount', 'remarks', 'upload_id', 'line');
         $query
             ->insert($db->quoteName('#__memberportal_offering_details'))
             ->columns($db->quoteName($columns))
