@@ -19,7 +19,7 @@ CREATE TABLE `#__memberportal_cell_groups` (
 	`district` VARCHAR(10),
 	`start_date` DATE,
 	`end_date` DATE,
-	PRIMARY KEY (`name`)
+	PRIMARY KEY (`name`, `start_date`)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
