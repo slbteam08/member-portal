@@ -91,7 +91,7 @@ class MemberPortalViewMemberPortal extends JViewLegacy
         // Get member data
         $year = $input->get("year"); // Secret override
         if (is_null($year)) {
-            $year = 2025;
+            $year = date("Y");
         }
         $this->year = $year;
 

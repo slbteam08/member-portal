@@ -411,18 +411,12 @@ function goToReport() {
       <div class="year-select-container">
         顯示數據年份：
         <select class="year-select" name="year" id="year" onchange="onYearChanged()">
-          <option value="2025" <?php if ($this->year==2025) {
-            echo "selected";
-        } ?>>2025</option>
-          <option value="2024" <?php if ($this->year==2024) {
-            echo "selected";
-        } ?>>2024</option>
-          <option value="2023" <?php if ($this->year==2023) {
-            echo "selected";
-        } ?>>2023</option>
-          <option value="2022" <?php if ($this->year==2022) {
-            echo "selected";
-        } ?>>2022</option>
+          <?php
+            $currentYear = date("Y");
+            for ($y = $currentYear; $y >= 2022; $y--) {
+          ?>
+            <option value="<?php echo $y; ?>" <?php if ($this->year==$y) { echo "selected"; } ?>><?php echo $y; ?></option>
+          <?php } ?>
         </select>
       </div>
     </div>
