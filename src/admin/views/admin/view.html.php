@@ -26,7 +26,8 @@ class MemberPortalViewAdmin extends JViewLegacy
         $this->pagination    = $this->get('Pagination');
 
         // Check for errors.
-        if (count($errors = $this->get('Errors'))) {
+        $errors = $this->get('Errors');
+        if (is_array($errors) && count($errors)) {
             JError::raiseError(500, implode('<br />', $errors));
 
             return false;

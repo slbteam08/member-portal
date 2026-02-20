@@ -37,7 +37,7 @@ class MemberPortalModelMemberPortal extends JModelLegacy
         $query->select('*')
             ->from("(" . $subQuery . ") AS b")
             ->where("attr_rank = 1")
-            ->where("member_code = " . $member_code);
+            ->where("member_code = " . $db->quote($member_code));
 
         $db->setQuery($query);
         $row = $db->loadObject();
